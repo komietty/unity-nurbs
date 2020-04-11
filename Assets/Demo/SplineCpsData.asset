@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97af4bd4a380fba4385698bc1d8d7e81, type: 3}
+  m_Name: SplineCpsData
+  m_EditorClassIdentifier: 
+  order: 2
+  cps:
+  - pos: {x: -0.30537486, y: 0.16021156, z: 2.1942387}
+    weight: 1
+  - pos: {x: -1.4256276, y: 0.93, z: 0}
+    weight: 1
+  - pos: {x: -0.039716244, y: -1.3995051, z: 0.8402569}
+    weight: 1
+  - pos: {x: 0.39747107, y: -1.1638021, z: 2.3599067}
+    weight: 1
+  - pos: {x: 4.0853043, y: -1.5020612, z: 0}
+    weight: 1
+  - pos: {x: 5.4360404, y: -1.3283609, z: 2.4}
+    weight: 1

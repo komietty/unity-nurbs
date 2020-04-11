@@ -57,6 +57,9 @@ namespace kmty.NURBS {
             return frac / deno;
         }
 
+        public void Init() {
+        }
+
         public void UpdateCP(Vector2Int i, CP cp) {
             var cl = new Vector2Int(cps.GetLength(0), cps.GetLength(1));
             var ol = cl - order * 2 * Vector2.one;
@@ -70,8 +73,8 @@ namespace kmty.NURBS {
             else if (i.x == ol.x - 1 && i.y == ol.y - 1)
                 for (int x = 0; x <= order; x++) for (int y = 0; y <= order; y++) cps[cl.x - x - 1, cl.y - y - 1] = cp;
             // edge condition
-            else if (i.x == 0) for (int x = 0; x <= order; x++) cps[x, i.y + order] = cp;
-            else if (i.y == 0) for (int y = 0; y <= order; y++) cps[i.x + order, y] = cp;
+            else if (i.x == 0)        for (int x = 0; x <= order; x++) cps[x, i.y + order] = cp;
+            else if (i.y == 0)        for (int y = 0; y <= order; y++) cps[i.x + order, y] = cp;
             else if (i.x == ol.x - 1) for (int j = 0; j <= order; j++) cps[cl.x - j - 1, i.y + order] = cp;
             else if (i.y == ol.y - 1) for (int j = 0; j <= order; j++) cps[i.x + order, cl.y - j - 1] = cp;
             // other point condition
