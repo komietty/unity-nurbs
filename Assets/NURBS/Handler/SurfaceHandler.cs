@@ -8,7 +8,7 @@ namespace kmty.NURBS {
         public SurfaceCpsData Data { get { return data; } set { data = value; } }
         public Surface surface { get; protected set; }
         [SerializeField, Range(0, 1)] public float checker;
-        public float normalizedT(float t, int count) => Mathf.Clamp((t * count + data.order) / (count + data.order), 0, 1 - 1e-5f);
+        public float normalizedT(float t, int count) => Mathf.Clamp((t * (count + 1) + data.order - 1) / (count + data.order), 0, 1 - 1e-5f);
 
         void Start() {
             surface = new Surface(data.GetCps(), data.order);

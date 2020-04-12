@@ -83,22 +83,15 @@ namespace kmty.NURBS {
             Handles.DrawLines(segments.ToArray());
 
             var seg = 0.05f;
-            var frc = (float)EditorApplication.timeSinceStartup % 1f;
             var handler = (SurfaceHandler)target;
             segments.Clear();
-            //for (float t =0; t <= 1f; t+= 0.05f) {
-            //    for (float y = 0; y < 1f; y += seg) {
-            //        segments.Add(surface.GetCurve(t, y));
-            //        segments.Add(surface.GetCurve(t, y + seg));
-            //    }
-            //}
             for (float y = 0; y <= 1f; y += seg) {
-                segments.Add(surface.GetCurve(handler.normalizedT(frc, data.count.x), handler.normalizedT(y, data.count.y)));
-                segments.Add(surface.GetCurve(handler.normalizedT(frc, data.count.x), handler.normalizedT(y + seg, data.count.y)));
+                segments.Add(surface.GetCurve(handler.normalizedT(handler.checker, data.count.x), handler.normalizedT(y, data.count.y)));
+                segments.Add(surface.GetCurve(handler.normalizedT(handler.checker, data.count.x), handler.normalizedT(y + seg, data.count.y)));
             }
             for (float x = 0; x < 1f; x += seg) {
-                segments.Add(surface.GetCurve(handler.normalizedT(x, data.count.x), handler.normalizedT(frc, data.count.y)));
-                segments.Add(surface.GetCurve(handler.normalizedT(x+ seg, data.count.x), handler.normalizedT(frc, data.count.y)));
+                segments.Add(surface.GetCurve(handler.normalizedT(x, data.count.x), handler.normalizedT(handler.checker, data.count.y)));
+                segments.Add(surface.GetCurve(handler.normalizedT(x+ seg, data.count.x), handler.normalizedT(handler.checker, data.count.y)));
             }
             Handles.color = Color.red;
             Handles.DrawLines(segments.ToArray());
