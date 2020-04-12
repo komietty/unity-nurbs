@@ -15,7 +15,8 @@ namespace kmty.NURBS.Demo {
         }
 
         void Update() {
-            tracer.transform.position = handler.spline.GetCurve((Time.time / 3) % 1);
+            var t = handler.normalizedT((Time.time / 3) % 1);
+            tracer.transform.position = handler.spline.GetCurve(t);
         }
     }
 }

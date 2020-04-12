@@ -51,10 +51,10 @@ namespace kmty.NURBS {
         }
 
         float KnotVector(int j) {
-            var m = cps.Length + order + 1;
-            if (j < order + 1) return 0;
-            if (j > m - (order + 1)) return 1;
-            return Mathf.Max(j - order, 0f) / (m - 2 * (order + 1));
+            var l = cps.Length;
+            if (j < order) return 0;
+            if (j >= l - order) return 1;
+            return Mathf.Max(j - order, 0f) / (l - 2 * order);
         }
     }
 }

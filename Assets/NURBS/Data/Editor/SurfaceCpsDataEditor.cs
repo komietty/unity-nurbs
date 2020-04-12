@@ -13,10 +13,10 @@ namespace kmty.NURBS {
 
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Reset")) {
-                for (var y = 0; y < surf.divide.y; y++) {
-                    for (var x = 0; x < surf.divide.x; x++) {
+                for (int y = 0; y < surf.count.y; y++) {
+                    for (int x = 0; x < surf.count.x; x++) {
                         var p = new Vector3(x * surf.width.x, y * surf.width.y, Random.value);
-                        var o = new Vector3(surf.size.x, y * surf.size.y) * 0.5f;
+                        var o = new Vector3(surf.size.x, surf.size.y) * 0.5f;
                         surf.cps[surf.Convert(x, y)] = new CP(p, 1);
                     }
                 }

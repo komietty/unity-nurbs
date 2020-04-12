@@ -7,6 +7,7 @@ namespace kmty.NURBS {
         [SerializeField] protected SplineCpsData data;
         public SplineCpsData Data { get { return data; } set { data = value; } }
         public Spline spline { get; protected set; }
+        public float normalizedT(float time) => (time * (1 + data.cps.Count) + (data.order - 1)) / (data.cps.Count + data.order);
 
         void Start() {
             spline = new Spline(data.cps.ToArray(), data.order);

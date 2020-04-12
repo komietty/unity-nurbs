@@ -94,11 +94,14 @@ namespace kmty.NURBS {
             }
         }
 
+        /// <summary>
+        /// open uniform knot vector
+        /// </summary>
         float KnotVector(int j, bool xDir) {
-            var m = cps.GetLength(xDir ? 0 : 1) + order + 1;
-            if (j < order + 1) return 0;
-            if (j > m - (order + 1)) return 1;
-            return Mathf.Max(j - order, 0f) / (m - 2 * (order + 1));
+            var l = cps.GetLength(xDir ? 0 : 1);
+            if (j < order) return 0;
+            if (j > l - order) return 1;
+            return Mathf.Clamp01((j - order) / (float)(l - 2 * order));
         }
     }
 }

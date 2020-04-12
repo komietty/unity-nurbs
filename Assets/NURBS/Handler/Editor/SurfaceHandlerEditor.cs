@@ -9,6 +9,7 @@ namespace kmty.NURBS {
         protected int selectedId = -1;
         protected int lenX;
         protected int lenY;
+        protected int order;
         public Surface surface { get; set; }
 
         void OnEnable() {
@@ -19,6 +20,8 @@ namespace kmty.NURBS {
         void OnSceneGUI() {
             var handler = (SurfaceHandler)target;
             var cps = handler.Data.cps;
+
+            if (handler.Data.order != order) Init(handler.Data);
 
             for (int i = 0; i < cps.Count; i++) {
                 var cp = handler.Data.cps[i];
@@ -54,6 +57,7 @@ namespace kmty.NURBS {
             var cps = data.GetCps();
             lenX = cps.GetLength(0);
             lenY = cps.GetLength(1);
+            order = data.order;
             surface = new Surface(cps, data.order);
         }
 
@@ -63,14 +67,14 @@ namespace kmty.NURBS {
 
             // draw grid
             List<Vector3> segments = new List<Vector3>();
-            for (int x = 0; x < data.divide.x; x++) {
-                for (int y = 0; y < data.divide.y - 1; y++) {
+            for (int x = 0; x < data.count.x; x++) {
+                for (int y = 0; y < data.count.y - 1; y++) {
                     segments.Add(cps[x, y].pos);
                     segments.Add(cps[x, y + 1].pos);
                 }
             }
-            for (int y = 0; y < data.divide.y; y++) {
-                for (int x = 0; x < data.divide.x - 1; x++) {
+            for (int y = 0; y < data.count.y; y++) {
+                for (int x = 0; x < data.count.x - 1; x++) {
                     segments.Add(cps[x, y].pos);
                     segments.Add(cps[x + 1, y].pos);
                 }
@@ -80,14 +84,21 @@ namespace kmty.NURBS {
 
             var seg = 0.05f;
             var frc = (float)EditorApplication.timeSinceStartup % 1f;
+            var handler = (SurfaceHandler)target;
             segments.Clear();
-            for (float y = 0; y < 1f; y += seg) {
-                segments.Add(surface.GetCurve(0.5f, y));
-                segments.Add(surface.GetCurve(0.5f, y + seg));
+            //for (float t =0; t <= 1f; t+= 0.05f) {
+            //    for (float y = 0; y < 1f; y += seg) {
+            //        segments.Add(surface.GetCurve(t, y));
+            //        segments.Add(surface.GetCurve(t, y + seg));
+            //    }
+            //}
+            for (float y = 0; y <= 1f; y += seg) {
+                segments.Add(surface.GetCurve(handler.normalizedT(frc, data.count.x), handler.normalizedT(y, data.count.y)));
+                segments.Add(surface.GetCurve(handler.normalizedT(frc, data.count.x), handler.normalizedT(y + seg, data.count.y)));
             }
             for (float x = 0; x < 1f; x += seg) {
-                segments.Add(surface.GetCurve(x, frc));
-                segments.Add(surface.GetCurve(x + seg, frc));
+                segments.Add(surface.GetCurve(handler.normalizedT(x, data.count.x), handler.normalizedT(frc, data.count.y)));
+                segments.Add(surface.GetCurve(handler.normalizedT(x+ seg, data.count.x), handler.normalizedT(frc, data.count.y)));
             }
             Handles.color = Color.red;
             Handles.DrawLines(segments.ToArray());
