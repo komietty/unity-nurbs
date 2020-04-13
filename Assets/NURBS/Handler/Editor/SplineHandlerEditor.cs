@@ -43,7 +43,7 @@ namespace kmty.NURBS {
                 if (EditorGUI.EndChangeCheck()) {
                     cp.pos = handler.transform.InverseTransformPoint(pos);
                     cps[selectedId] = cp;
-                    EditorUtility.SetDirty(handler);
+                    EditorUtility.SetDirty(handler.Data);
                 }
             }
 

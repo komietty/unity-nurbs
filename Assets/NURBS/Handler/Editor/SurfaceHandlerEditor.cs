@@ -20,7 +20,6 @@ namespace kmty.NURBS {
         void OnSceneGUI() {
             var handler = (SurfaceHandler)target;
             var cps = handler.Data.cps;
-
             if (handler.Data.order != order) Init(handler.Data);
 
             for (int i = 0; i < cps.Count; i++) {
@@ -46,11 +45,11 @@ namespace kmty.NURBS {
                 if (EditorGUI.EndChangeCheck()) {
                     cp.pos = handler.transform.InverseTransformPoint(pos);
                     cps[selectedId] = cp;
-                    EditorUtility.SetDirty(handler);
+                    EditorUtility.SetDirty(handler.Data);
                 }
             }
 
-            Draw(handler.Data);
+            Draw();
         }
 
         void Init(SurfaceCpsData data) {
@@ -61,29 +60,31 @@ namespace kmty.NURBS {
             surface = new Surface(cps, data.order);
         }
 
-        void Draw(SurfaceCpsData data) {
+        void Draw() {
             if (surface == null) return;
+            var handler = (SurfaceHandler)target;
+            var data = handler.Data;
             var cps = data.GetCps();
+            var pt = handler.transform.position;
 
             // draw grid
             List<Vector3> segments = new List<Vector3>();
             for (int x = 0; x < data.count.x; x++) {
                 for (int y = 0; y < data.count.y - 1; y++) {
-                    segments.Add(cps[x, y].pos);
-                    segments.Add(cps[x, y + 1].pos);
+                    segments.Add(pt + cps[x, y].pos);
+                    segments.Add(pt + cps[x, y + 1].pos);
                 }
             }
             for (int y = 0; y < data.count.y; y++) {
                 for (int x = 0; x < data.count.x - 1; x++) {
-                    segments.Add(cps[x, y].pos);
-                    segments.Add(cps[x + 1, y].pos);
+                    segments.Add(pt + cps[x, y].pos);
+                    segments.Add(pt + cps[x + 1, y].pos);
                 }
             }
             Handles.color = Color.blue;
             Handles.DrawLines(segments.ToArray());
 
             var seg = 0.05f;
-            var handler = (SurfaceHandler)target;
             segments.Clear();
             for (float y = 0; y <= 1f; y += seg) {
                 segments.Add(surface.GetCurve(handler.normalizedT(handler.checker, data.count.x), handler.normalizedT(y, data.count.y)));
