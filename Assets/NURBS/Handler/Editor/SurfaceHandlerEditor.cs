@@ -53,38 +53,36 @@ namespace kmty.NURBS {
         }
 
         void Init(SurfaceCpsData data) {
-            var cps = data.GetCps();
-            lenX = cps.GetLength(0);
-            lenY = cps.GetLength(1);
+            lenX = data.count.x;
+            lenY = data.count.y;
             order = data.order;
-            surface = new Surface(cps, data.order);
+            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y);
         }
 
         void Draw() {
             if (surface == null) return;
             var handler = (SurfaceHandler)target;
             var data = handler.Data;
-            var cps = data.GetCps();
             var pt = handler.transform.position;
 
             // draw grid
             List<Vector3> segments = new List<Vector3>();
             for (int x = 0; x < data.count.x; x++) {
                 for (int y = 0; y < data.count.y - 1; y++) {
-                    segments.Add(pt + cps[x, y].pos);
-                    segments.Add(pt + cps[x, y + 1].pos);
+                    segments.Add(pt + data.cps[data.Convert(x, y)].pos);
+                    segments.Add(pt + data.cps[data.Convert(x, y + 1)].pos);
                 }
             }
             for (int y = 0; y < data.count.y; y++) {
                 for (int x = 0; x < data.count.x - 1; x++) {
-                    segments.Add(pt + cps[x, y].pos);
-                    segments.Add(pt + cps[x + 1, y].pos);
+                    segments.Add(pt + data.cps[data.Convert(x, y)].pos);
+                    segments.Add(pt + data.cps[data.Convert(x + 1, y)].pos);
                 }
             }
             Handles.color = Color.blue;
             Handles.DrawLines(segments.ToArray());
 
-            var seg = 0.05f;
+            var seg = 0.01f;
             segments.Clear();
             for (float y = 0; y <= 1f; y += seg) {
                 segments.Add(surface.GetCurve(handler.normalizedT(handler.checker, data.count.x), handler.normalizedT(y, data.count.y)));

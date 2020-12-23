@@ -9,15 +9,6 @@ namespace kmty.NURBS {
         public Vector2Int size;
         public Vector2Int count;
         public List<CP> cps;
-        public CP[,] GetCps() {
-            CP[,] _cps = new CP[count.x, count.y];
-            for (int y = 0; y < count.y; y++) {
-                for (int x = 0; x < count.x; x++) {
-                    _cps[x, y] = cps[Convert(x, y)];
-                }
-            }
-            return _cps;
-        }
 
         public Vector2 width => new Vector2(size.x / (float)(count.x - 1), size.y / (float)(count.y - 1));
         public int Convert(int x, int y) => x + y * count.x;
