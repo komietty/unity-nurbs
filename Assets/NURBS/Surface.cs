@@ -1,21 +1,22 @@
-﻿using UnityEngine;
+﻿using Unity.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace kmty.NURBS {
-    public class Surface {
-        CP[] cps;
-        int order;
-        int olx, oly;
-        int nlx, nly;
+    public class Surface: System.IDisposable {
+        NativeArray<CP> cps;
+        int order, olx, oly, nlx, nly;
         int nidx(int x, int y) => x + y * nlx;
         int oidx(int x, int y) => x + y * olx;
+        public NativeArray<CP> CPs => cps;
 
-        public Surface(CP[] originalCps, int order, int olx, int oly) {
+        public Surface(List<CP> originalCps, int order, int olx, int oly) {
             this.olx = olx;
             this.oly = oly;
             this.order = order;
             nlx = olx + 2 * order;
             nly = oly + 2 * order;
-            cps = new CP[nidx(nlx, nly)];
+            cps = new NativeArray<CP>(nlx * nly, Allocator.Persistent);
 
             // prepare extented array 2d
             for (int y = 0; y < order; y++)
@@ -47,22 +48,6 @@ namespace kmty.NURBS {
                 }
         }
 
-        public Vector3 GetCurve(float tx, float ty) {
-            var frac = Vector3.zero;
-            var deno = 0f;
-            tx = Mathf.Min(tx, 1f - 1e-5f);
-            ty = Mathf.Min(ty, 1f - 1e-5f);
-            for (int y = 0; y < nly; y++) {
-                for (int x = 0; x < nlx; x++) {
-                    var bf = BasisFunc(x, order, tx, true) * BasisFunc(y, order, ty, false);
-                    var cp = cps[nidx(x, y)];
-                    frac += cp.pos * bf * cp.weight;
-                    deno += bf * cp.weight;
-                }
-            }
-            return frac / deno;
-        }
-
         public void UpdateCP(Vector2Int i, CP cp) {
             var cl = new Vector2Int(nlx, nly);
             var ol = cl - order * 2 * Vector2.one;
@@ -80,27 +65,51 @@ namespace kmty.NURBS {
             else cps[nidx(i.x + order, i.y + order)] = cp;
         }
 
-        float BasisFunc(int j, int k, float t, bool xDir) {
+        public Vector3 GetCurve(float tx, float ty) => NURBSSurface.GetCurve(cps, tx, ty, order, olx, oly);
+        public bool IsAccessbile => cps.IsCreated;
+        public void Dispose() => cps.Dispose();
+    }
+
+    public static class NURBSSurface {
+
+        public static Vector3 GetCurve(NativeArray<CP> cps, float tx, float ty, int order, int olx, int oly) {
+            var frac = Vector3.zero;
+            var deno = 0f;
+            var nlx = olx + 2 * order;
+            var nly = oly + 2 * order;
+            tx = Mathf.Min(tx, 1f - 1e-5f);
+            ty = Mathf.Min(ty, 1f - 1e-5f);
+            for (int y = 0; y < nly; y++) {
+                for (int x = 0; x < nlx; x++) {
+                    var bf = BasisFunc(x, order, order, tx, nlx) * BasisFunc(y, order, order, ty, nly);
+                    var cp = cps[x + y * nlx];
+                    frac += cp.pos * bf * cp.weight;
+                    deno += bf * cp.weight;
+                }
+            }
+            return frac / deno;
+        }
+
+        public static float BasisFunc(int j, int k, int order, float t, int l) {
             if (k == 0) {
-                return (t >= KnotVector(j, xDir) && t < KnotVector(j + 1, xDir)) ? 1 : 0;
+                return (t >= KnotVector(j, order, l) && t < KnotVector(j + 1, order, l)) ? 1 : 0;
             }
             else {
-                var d1 = KnotVector(j + k, xDir) - KnotVector(j, xDir);
-                var d2 = KnotVector(j + k + 1, xDir) - KnotVector(j + 1, xDir);
-                var c1 = d1 != 0 ? (t - KnotVector(j, xDir)) / d1 : 0;
-                var c2 = d2 != 0 ? (KnotVector(j + k + 1, xDir) - t) / d2 : 0;
-                return c1 * BasisFunc(j, k - 1, t, xDir) + c2 * BasisFunc(j + 1, k - 1, t, xDir);
+                var d1 = KnotVector(j + k, order, l) - KnotVector(j, order, l);
+                var d2 = KnotVector(j + k + 1, order, l) - KnotVector(j + 1, order, l);
+                var c1 = d1 != 0 ? (t - KnotVector(j, order, l)) / d1 : 0;
+                var c2 = d2 != 0 ? (KnotVector(j + k + 1, order, l) - t) / d2 : 0;
+                return c1 * BasisFunc(j, k - 1, order, t, l) + c2 * BasisFunc(j + 1, k - 1, order, t, l);
             }
         }
 
         /// <summary>
         /// open uniform knot vector
         /// </summary>
-        float KnotVector(int j, bool xDir) {
-            var l = xDir ? nlx : nly;
+        static float KnotVector(int j, int order, int len) {
             if (j < order) return 0;
-            if (j > l - order) return 1;
-            return Mathf.Clamp01((j - order) / (float)(l - 2 * order));
+            if (j > len - order) return 1;
+            return Mathf.Clamp01((j - order) / (float)(len - 2 * order));
         }
     }
 }

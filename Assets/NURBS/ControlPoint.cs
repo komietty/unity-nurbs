@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
 namespace kmty.NURBS {
-
     [System.Serializable]
     public struct CP {
         public Vector3 pos;

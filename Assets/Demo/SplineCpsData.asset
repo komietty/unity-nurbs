@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   order: 2
   cps:
-  - pos: {x: -0.30537486, y: 0.16021156, z: 2.1942387}
+  - pos: {x: -0.0030767918, y: 0.4006939, z: 2.1942384}
     weight: 1
   - pos: {x: -1.4256276, y: 0.93, z: 0}
     weight: 1
