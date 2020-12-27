@@ -21,12 +21,12 @@ namespace kmty.NURBS {
                 if (!Directory.Exists(handler.BakePath)) Directory.CreateDirectory(handler.BakePath);
                 var path = handler.BakePath + "/" + handler.BakeName + ".asset";
                 CreateOrUpdate(handler.mesh, path);
-
             }
         }
 
         void OnSceneGUI() {
             if (!Application.isPlaying) return;
+            if (segments.Count == 0) UpdateSegments();
             var cps = handler.Data.cps;
             if (handler.Data.order != order) {
                 handler.Reset();
@@ -56,19 +56,16 @@ namespace kmty.NURBS {
                     cp.pos = handler.transform.InverseTransformPoint(pos);
                     cps[selectedId] = cp;
                     handler.UpdateMesh();
+                    UpdateSegments();
                     EditorUtility.SetDirty(handler.Data);
                 }
             }
-
-            if (handler.surface != null) {
-                DrawLines();
-                //DrawCurve();
-            };
+            Handles.color = Color.blue;
+            Handles.DrawLines(segments.ToArray());
         }
 
-        void DrawLines() {
+        void UpdateSegments() {
             segments.Clear();
-            // draw grid
             for (int x = 0; x < data.count.x; x++)
             for (int y = 0; y < data.count.y - 1; y++) {
                 segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
@@ -79,25 +76,7 @@ namespace kmty.NURBS {
                 segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
                 segments.Add(hpos + data.cps[data.Convert(x + 1, y)].pos);
             }
-            Handles.color = Color.blue;
-            Handles.DrawLines(segments.ToArray());
 
-        }
-
-        void DrawCurve() { 
-            segments.Clear();
-            var s = 0.01f;
-            var t = Mathf.Sin(Time.time) * 0.5f + 0.5f;
-            for (float y = 0; y <= 1f; y += s) {
-                segments.Add(handler.GetCurve(t, y));
-                segments.Add(handler.GetCurve(t, y + s));
-            }
-            for (float x = 0; x < 1f; x += s) {
-                segments.Add(handler.GetCurve(x, t));
-                segments.Add(handler.GetCurve(x+ s, t));
-            }
-            Handles.color = Color.red;
-            Handles.DrawLines(segments.ToArray());
         }
 
         void CreateOrUpdate(Object newAsset, string assetPath) {
