@@ -5,10 +5,12 @@ using System.Linq;
 using UnityEngine.Assertions;
 
 public class Curvature : MonoBehaviour {
+    [SerializeField, Range(1, 10)] protected float colorScale;
     GraphicsBuffer indexBuff;
     GraphicsBuffer tableBuff;
     GraphicsBuffer colorBuff;
     GraphicsBuffer vertexBuff;
+    Material mat;
 
     struct frto {
         public int fr;
@@ -51,14 +53,14 @@ public class Curvature : MonoBehaviour {
     }
 
     void Start() {
-        var ogl_mesh = GetComponent<MeshFilter>().sharedMesh;
-        var mesh = Weld(ogl_mesh);
-        GetComponent<MeshFilter>().mesh = mesh;
-        var mat  = GetComponent<MeshRenderer>().sharedMaterial;
+        var filt = GetComponent<MeshFilter>();
+        var mesh = Weld(filt.sharedMesh);
         var vrts = mesh.vertices.Select(v => v * 10000).ToArray();
         var tris = mesh.GetIndices(0);
         var frtos = new frto[tris.Length];
         var bglns = new bgln[vrts.Length];
+        filt.mesh = mesh;
+        mat = GetComponent<MeshRenderer>().sharedMaterial;
 
         Debug.Log(vrts.Length);
         Debug.Log(tris.Length);
@@ -146,5 +148,7 @@ public class Curvature : MonoBehaviour {
         vertexBuff.Dispose();
     }
 
-    void Update() { }
+    void OnRenderObject() {
+        mat.SetFloat("_ColorScale", colorScale);
+     }
 }
