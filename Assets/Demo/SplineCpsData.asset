@@ -12,17 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97af4bd4a380fba4385698bc1d8d7e81, type: 3}
   m_Name: SplineCpsData
   m_EditorClassIdentifier: 
-  order: 2
+  order: 4
+  loop: 1
   cps:
-  - pos: {x: -0.0030767918, y: 0.4006939, z: 2.1942384}
+  - pos: {x: -2.978989, y: 1.6349783, z: 0}
     weight: 1
-  - pos: {x: -1.4256276, y: 0.93, z: 0}
+  - pos: {x: -0.9008225, y: 1.5381396, z: -1.2312217}
+    weight: 0.70710677
+  - pos: {x: -1.1239041, y: -0.35717988, z: -0.15015936}
     weight: 1
-  - pos: {x: -0.039716244, y: -1.3995051, z: 0.8402569}
+  - pos: {x: -3.571296, y: -0.50176513, z: 0}
     weight: 1
-  - pos: {x: 0.39747107, y: -1.1638021, z: 2.3599067}
-    weight: 1
-  - pos: {x: 4.0853043, y: -1.5020612, z: 0}
-    weight: 1
-  - pos: {x: 5.4360404, y: -1.3283609, z: 2.4}
+  - pos: {x: -2.0252438, y: 0.46181905, z: 1.7510084}
     weight: 1

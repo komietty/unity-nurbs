@@ -16,7 +16,10 @@ namespace kmty.NURBS.Demo {
 
         void Update() {
             var t = handler.normalizedT((Time.time / 3) % 1);
-            tracer.transform.position = handler.spline.GetCurve(t);
+            var min = handler.spline.min;
+            var max = handler.spline.max;
+            var f = handler.spline.GetCurve(min + (max - min) * t, out Vector3 v);
+            if (f) tracer.transform.position = v;
         }
     }
 }

@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 namespace kmty.NURBS {
     [CustomEditor(typeof(SplineHandler))]
     public class SplineHandlerEditor : Editor {
-        protected int selectedId = -1;
-        public Spline spline { get; set; }
-        protected int length;
+        private Spline _spline;
+        private int selectedId = -1;
+        private int length;
 
         void OnEnable() {
             var handler = (SplineHandler)target;
@@ -22,7 +23,7 @@ namespace kmty.NURBS {
 
             for (int i = 0; i < length; i++) {
                 var cp = handler.Data.cps[i];
-                spline.UpdateCP(i, new CP(handler.transform.position + cp.pos, cp.weight));
+                _spline.SetCP(i, new CP(handler.transform.position + cp.pos, cp.weight));
             }
 
             for(var i = 0; i < cps.Count; i++) {
@@ -51,16 +52,31 @@ namespace kmty.NURBS {
         }
 
         void Init(SplineCpsData data) {
-            var cps = data.cps.ToArray();
+            var hdl = (SplineHandler)target;
+            var trs = hdl.transform;
+            var cps = data.cps.Select(cp => new CP(trs.TransformPoint(cp.pos), cp.weight)).ToArray();
             length = cps.Length;
-            spline = new Spline(cps, data.order);
+            _spline = new Spline(cps, data.order, data.loop);
+            _spline.CreateHodograph();
         }
 
         void Draw() {
-            if (spline == null) return;
-            var seg = 0.005f;
-            for (float t = 0; t < 1 - seg; t += seg)
-                Handles.DrawLine(spline.GetCurve(t), spline.GetCurve(t + seg));
+            if (_spline == null) return;
+            var seg = 0.003f;
+            //for (int i = 0; i < _spline.cps.Length - 1; i++)
+            //    Handles.DrawLine(_spline.cps[i].pos, _spline.cps[i + 1].pos);
+            for (float t = _spline.min; t < _spline.max - seg; t += seg) {
+                var f1 = _spline.GetCurve(t, out Vector3 v1);
+                var f2 = _spline.GetCurve(t + seg, out Vector3 v2);
+                var dr1 = _spline.GetDerivative(t);
+                var dr2 = _spline.GetSecondDerivative(t);
+                Handles.color = Color.cyan;
+                Handles.DrawLine(v1, v1 + dr1 * 0.03f);
+                Handles.color = Color.yellow;
+                Handles.DrawLine(v1, v1 + dr2 * 0.03f);
+                Handles.color = Color.red;
+                if (f1 && f2) Handles.DrawLine(v1, v2);
+            }
         }
     }
 }

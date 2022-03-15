@@ -82,6 +82,7 @@ public class Curvature : MonoBehaviour {
         idxBuff.SetData(frtos);
         tblBuff.SetData(bglns);
         vrtBuff.SetData(vrts);
+        //vrtBuff = mesh.GetVertexBuffer(0);
     }
 
     void Update() {
@@ -95,6 +96,9 @@ public class Curvature : MonoBehaviour {
 
     void OnRenderObject() {
         mat.SetFloat("_ColorScale", colorScale);
+        mat.SetBuffer("_Vrts", vrtBuff);
+        mat.SetBuffer("_Idxs", idxBuff);
+        mat.SetBuffer("_Table", tblBuff);
         mat.SetBuffer("_Curvature", colBuff);
     }
 

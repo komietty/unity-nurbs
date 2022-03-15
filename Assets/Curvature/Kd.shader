@@ -10,11 +10,12 @@ Shader "Unlit/Kd" {
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+            #include "./Curvature.hlsl"
+            StructuredBuffer<float> _Curvature;
 
             struct appdata {
                 float4 vertex : POSITION;
             };
-
             struct v2f {
                 float4 vertex : SV_POSITION;
                 float4 color: COLOR;
@@ -23,15 +24,14 @@ Shader "Unlit/Kd" {
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _ColorScale;
-            StructuredBuffer<float> _Curvature;
 
-            v2f vert (uint vid: SV_VertexID, appdata v) {
+            v2f vert (uint vid: SV_VertexID, appdata val) {
                 v2f o;
-                float k = _Curvature[vid] * _ColorScale;
+                float k = GenGaussianCurvature(vid) * _ColorScale;
                 float e = clamp(k, 0, 1);
                 float s = clamp(-k, 0, 1);
                 o.color = float4(1 - s, 1 - s - e, 1 - e, 1);
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex = UnityObjectToClipPos(val.vertex);
                 return o;
             }
 
