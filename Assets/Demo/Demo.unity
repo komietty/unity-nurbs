@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &49285126
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: aa28068ef41731b44994c2ed177abaa0, type: 2}
   mat: {fileID: 2100000, guid: 2ea40c5782e83420b95c2b1c6de04ad1, type: 2}
-  division: {x: 30, y: 30}
+  division: {x: 40, y: 40}
   bakePath: Assets/Bakedmesh
   bakeName: bakedMesh
 --- !u!4 &49285127
@@ -251,7 +251,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &721559472
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -65,7 +65,8 @@ namespace kmty.NURBS {
         public void CreateHodograph(){
             var _cps = new CP[ctrlNum - 1];
             for (var i = 0; i < _cps.Length; i++) {
-                _cps[i] = new CP(GetQ(i).normalized, 1);
+                //_cps[i] = new CP(GetQ(i).normalized, 1);
+                _cps[i] = new CP(GetQ(i), 1);
                 //TODO: how about weight??
                 //TODO: is it nessaray, nomalize for curvature??
             }

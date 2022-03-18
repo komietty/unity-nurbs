@@ -71,9 +71,9 @@ namespace kmty.NURBS {
                 var dr1 = _spline.GetDerivative(t);
                 var dr2 = _spline.GetSecondDerivative(t);
                 Handles.color = Color.cyan;
-                Handles.DrawLine(v1, v1 + dr1 * 0.03f);
+                //Handles.DrawLine(v1, v1 + dr1 * 0.02f);
                 Handles.color = Color.yellow;
-                Handles.DrawLine(v1, v1 + dr2 * 0.03f);
+                Handles.DrawLine(v1, v1 + dr2 * 0.001f);
                 Handles.color = Color.red;
                 if (f1 && f2) Handles.DrawLine(v1, v2);
             }

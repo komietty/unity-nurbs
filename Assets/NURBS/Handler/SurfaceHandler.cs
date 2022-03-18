@@ -23,7 +23,7 @@ namespace kmty.NURBS {
         protected NativeArray<Vector3> vtcs;
 
         void Start() {
-            surface = new Surface(data.cps, data.order, data.count.x, data.count.y);
+            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y);
             for (int y = 0; y < data.count.y; y++)
                 for (int x = 0; x < data.count.x; x++) {
                     var i = data.Convert(x, y);
@@ -39,13 +39,12 @@ namespace kmty.NURBS {
 
         public void Reset() {
             if (surface != null) surface.Dispose();
-            surface = new Surface(data.cps, data.order, data.count.x, data.count.y);
-
+            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y);
         }
 
-        public Vector3 GetCurve(float t1, float t2) {
-            return surface.GetCurve(normalizedT(t1, data.count.x), normalizedT(t2, data.count.y));
-        }
+        //public Vector3 GetCurve(float t1, float t2) {
+        //    return surface.GetCurve(normalizedT(t1, data.count.x), normalizedT(t2, data.count.y));
+        //}
 
         void CreateMesh() {
             mesh = new Mesh();
@@ -60,8 +59,12 @@ namespace kmty.NURBS {
             for (int iy = 0; iy < ly; iy++)
             for (int ix = 0; ix < lx; ix++) {
                 int i = ix + iy * lx;
-                vtcs[i] = surface.GetCurve(ix * dx, iy * dy);
-                if(iy < division.y && ix < division.x) {
+                float _x = surface.min.x + ix * dx * (surface.max.x - surface.min.x);
+                float _y = surface.min.y + iy * dy * (surface.max.y - surface.min.y);
+                var f = surface.GetCurve(_x, _y, out Vector3 v);
+                if(!f)  Debug.LogWarning("surface range is somehow wrong");
+                vtcs[i] = v;
+                if (iy < division.y && ix < division.x) {
                     idcs.Add(i);
                     idcs.Add(i + 1);
                     idcs.Add(i + lx);
@@ -93,6 +96,8 @@ namespace kmty.NURBS {
                 var l = division.x + 1;
                 var x = (id % l) * invdiv.x;
                 var y = (id / l) * invdiv.y;
+                //float _x = surface.min.x + ix * dx * (surface.max.x - surface.min.x);
+                //float _y = surface.min.y + iy * dy * (surface.max.y - surface.min.y);
                 vtcs[id] = NURBSSurface.GetCurve(cps, x, y, order, cpslen.x, cpslen.y);
             }
         }
