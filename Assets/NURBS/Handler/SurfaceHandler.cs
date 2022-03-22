@@ -23,7 +23,7 @@ namespace kmty.NURBS {
         protected NativeArray<Vector3> vtcs;
 
         void Start() {
-            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y);
+            Reset();
             for (int y = 0; y < data.count.y; y++)
                 for (int x = 0; x < data.count.x; x++) {
                     var i = data.Convert(x, y);
@@ -39,7 +39,7 @@ namespace kmty.NURBS {
 
         public void Reset() {
             if (surface != null) surface.Dispose();
-            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y);
+            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xloop, data.yloop);
         }
 
         //public Vector3 GetCurve(float t1, float t2) {
@@ -89,16 +89,18 @@ namespace kmty.NURBS {
             [ReadOnly]  public NativeArray<CP> cps;
             public Vector2Int division;
             public Vector2Int cpslen;
+            public Vector2 min;
+            public Vector2 max;
             public Vector2 invdiv;
             public int order;
 
             public void Execute(int id) {
                 var l = division.x + 1;
-                var x = (id % l) * invdiv.x;
-                var y = (id / l) * invdiv.y;
-                //float _x = surface.min.x + ix * dx * (surface.max.x - surface.min.x);
-                //float _y = surface.min.y + iy * dy * (surface.max.y - surface.min.y);
-                vtcs[id] = NURBSSurface.GetCurve(cps, x, y, order, cpslen.x, cpslen.y);
+                var ix = (id % l) * invdiv.x;
+                var iy = (id / l) * invdiv.y;
+                float _x = min.x + ix * (max.x - min.x);
+                float _y = min.y + iy * (max.y - min.y);
+                vtcs[id] = NURBSSurface.GetCurve(cps, _x, _y, order, cpslen.x, cpslen.y);
             }
         }
 
@@ -109,8 +111,10 @@ namespace kmty.NURBS {
                 cps      = surface.CPs,
                 division = division,
                 invdiv = new Vector2(1f / division.x, 1f / division.y),
-                cpslen = data.count,
-                order    = data.order
+                cpslen = new Vector2Int(surface.lx, surface.ly),
+                order    = data.order,
+                min = surface.min,
+                max = surface.max,
             };
             job.Schedule(vtcs.Length, 0).Complete();
 

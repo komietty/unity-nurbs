@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace kmty.NURBS {
+    public enum KnotType { Uniform, OpenUniform }
+
     [CreateAssetMenu(menuName = "kmty/Create ControlPointsData/Surface", fileName = "SurfaceCpsData")]
     public class SurfaceCpsData : ScriptableObject {
         public int order;
+        public bool xloop;
+        public bool yloop;
+        public KnotType knotType;
         public Vector2Int size;
         public Vector2Int count;
         public List<CP> cps;

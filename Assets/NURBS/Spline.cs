@@ -7,8 +7,6 @@ using UnityEngine;
 // TODO: discrete Curvature
 
 namespace kmty.NURBS {
-    public enum KnotType { Uniform, OpenUniform }
-
     public class Spline {
         public CP[] cps { get; private set; }
         public float min => KnotVec(order);

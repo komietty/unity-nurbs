@@ -11,6 +11,7 @@ namespace kmty.NURBS.Demo {
         void Start() {
             handler = GetComponent<SplineHandler>();
             tracer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            tracer.transform.localScale *= 0.2f;
             tracer.transform.SetParent(this.transform);
         }
 

@@ -15,11 +15,13 @@ MonoBehaviour:
   order: 3
   loop: 1
   cps:
-  - pos: {x: 1, y: 1, z: 0}
+  - pos: {x: 0.93770194, y: 2.3885732, z: 2.1051927}
     weight: 1
   - pos: {x: 1, y: -1, z: 0}
     weight: 1
-  - pos: {x: -1, y: -1, z: 0}
+  - pos: {x: -0.9979712, y: 0.44086412, z: 1.9266307}
     weight: 1
-  - pos: {x: -1, y: 1, z: 0}
+  - pos: {x: -0.41106063, y: 0.9784789, z: -0.533864}
+    weight: 1
+  - pos: {x: 1.55, y: 0.9784789, z: -0.533864}
     weight: 1

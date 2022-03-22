@@ -13,14 +13,16 @@ namespace kmty.NURBS {
         public NativeArray<CP> CPs => cps;
         public Vector2 min => new Vector2(NURBSSurface.KnotVec(order, order, lx), NURBSSurface.KnotVec(order, order, ly));
         public Vector2 max => new Vector2(NURBSSurface.KnotVec(lx, order, lx),    NURBSSurface.KnotVec(ly, order, ly));
-        int order, lx, ly;
-        public bool xloop { get; private set; } = true;
-        public bool yloop { get; private set; } = true;
+        public int order, lx, ly;
+        public bool xloop { get; private set; }
+        public bool yloop { get; private set; }
         int idx(int x, int y) => x + y * lx;
 
-        public Surface(CP[] cps, int order, int lx, int ly) {
+        public Surface(CP[] cps, int order, int lx, int ly, bool xloop, bool yloop) {
             this.order = order;
-            if (xloop && yloop) {
+            this.xloop = xloop;
+            this.yloop = yloop;
+            if (this.xloop && this.yloop) {
                 var arr1d = new CP[(lx + order) * ly];
                 for (int y = 0; y < ly; y++) {
                     for (int x = 0; x < lx + order; x++) {
@@ -38,7 +40,7 @@ namespace kmty.NURBS {
                 this.lx = lx + order;
                 this.ly = ly + order;
                 this.cps = new NativeArray<CP>(_cps.ToArray(), Allocator.Persistent);
-            } else if (yloop) {
+            } else if (this.yloop) {
                 var _cps = cps.ToList();
                 for (int i = 0; i < order; i++) {
                     var row = new CP[lx]; 
@@ -48,7 +50,7 @@ namespace kmty.NURBS {
                 this.lx = lx;
                 this.ly = ly + order;
                 this.cps = new NativeArray<CP>(_cps.ToArray(), Allocator.Persistent);
-            } else if (xloop) {
+            } else if (this.xloop) {
                 var arr1d = new CP[(lx + order) * ly];
                 for (int y = 0; y < ly; y++) {
                     for (int x = 0; x < lx + order; x++) {
@@ -77,8 +79,8 @@ namespace kmty.NURBS {
         }
         public void UpdateCP(Vector2Int i, CP cp) {
             cps[idx(i.x, i.y)] = cp;
-            if (xloop) { }
-            if (yloop) { }
+            if (xloop && i.x < order) cps[idx(lx - order + i.x, i.y)] = cp;
+            if (yloop && i.y < order) cps[idx(i.x, ly - order + i.y)] = cp;
         }
         public bool IsAccessbile => cps.IsCreated;
         public void Dispose() => cps.Dispose();
