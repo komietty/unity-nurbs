@@ -10,7 +10,8 @@ namespace kmty.NURBS {
         public int order;
         public bool xloop;
         public bool yloop;
-        public KnotType knotType;
+        public KnotType xknot;
+        public KnotType yknot;
         public Vector2Int size;
         public Vector2Int count;
         public List<CP> cps;

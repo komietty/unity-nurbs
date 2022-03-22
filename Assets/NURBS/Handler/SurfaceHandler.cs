@@ -17,19 +17,21 @@ namespace kmty.NURBS {
         public Mesh mesh { get; private set; }
         public string BakePath => bakePath;
         public string BakeName => bakeName;
-        protected float normalizedT(float t, int count) => Mathf.Clamp((t * (count + 1) + data.order - 1) / (count + data.order), 0, 1 - 1e-5f);
+        //protected float normalizedT(float t, int count) => Mathf.Clamp((t * (count + 1) + data.order - 1) / (count + data.order), 0, 1 - 1e-5f);
         protected MeshRenderer rndr;
         protected MeshFilter   fltr;
         protected NativeArray<Vector3> vtcs;
+        public List<Vector3> segments { get; protected set; } = new List<Vector3>();
 
         void Start() {
-            Reset();
+            Init();
             for (int y = 0; y < data.count.y; y++)
                 for (int x = 0; x < data.count.x; x++) {
                     var i = data.Convert(x, y);
                     surface.UpdateCP(new Vector2Int(x, y), new CP(transform.position + data.cps[i].pos, data.cps[i].weight));
                 }
             CreateMesh();
+            UpdateSegments(data, transform.position);
         }
 
         void OnDestroy() {
@@ -37,14 +39,10 @@ namespace kmty.NURBS {
             vtcs.Dispose();
         }
 
-        public void Reset() {
+        public void Init() {
             if (surface != null) surface.Dispose();
-            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xloop, data.yloop);
+            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xloop, data.yloop, data.xknot, data.yknot);
         }
-
-        //public Vector3 GetCurve(float t1, float t2) {
-        //    return surface.GetCurve(normalizedT(t1, data.count.x), normalizedT(t2, data.count.y));
-        //}
 
         void CreateMesh() {
             mesh = new Mesh();
@@ -92,6 +90,8 @@ namespace kmty.NURBS {
             public Vector2 min;
             public Vector2 max;
             public Vector2 invdiv;
+            public KnotType xknot;
+            public KnotType yknot;
             public int order;
 
             public void Execute(int id) {
@@ -100,21 +100,22 @@ namespace kmty.NURBS {
                 var iy = (id / l) * invdiv.y;
                 float _x = min.x + ix * (max.x - min.x);
                 float _y = min.y + iy * (max.y - min.y);
-                vtcs[id] = NURBSSurface.GetCurve(cps, _x, _y, order, cpslen.x, cpslen.y);
+                vtcs[id] = NURBSSurface.GetCurve(cps, _x, _y, order, cpslen.x, cpslen.y, xknot, yknot);
             }
         }
 
-
         public void UpdateMesh() {
             var job = new UpdateMeshJob {
-                vtcs     = vtcs,
-                cps      = surface.CPs,
+                vtcs = vtcs,
+                cps = surface.CPs,
                 division = division,
                 invdiv = new Vector2(1f / division.x, 1f / division.y),
                 cpslen = new Vector2Int(surface.lx, surface.ly),
-                order    = data.order,
                 min = surface.min,
                 max = surface.max,
+                order = data.order,
+                xknot = data.xknot,
+                yknot = data.yknot,
             };
             job.Schedule(vtcs.Length, 0).Complete();
 
@@ -123,6 +124,30 @@ namespace kmty.NURBS {
             mesh.RecalculateTangents();
             mesh.RecalculateBounds();
 
+        }
+
+        public void UpdateSegments(SurfaceCpsData data, Vector3 hpos) {
+            segments.Clear();
+            for (int x = 0; x < data.count.x; x++) {
+            for (int y = 0; y < data.count.y - 1; y++) {
+                    segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
+                    segments.Add(hpos + data.cps[data.Convert(x, y + 1)].pos);
+                }
+                if(data.yloop){
+                    segments.Add(hpos + data.cps[data.Convert(x, data.count.y - 1)].pos);
+                    segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
+                }
+            }
+            for (int y = 0; y < data.count.y; y++) {
+                for (int x = 0; x < data.count.x - 1; x++) {
+                    segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
+                    segments.Add(hpos + data.cps[data.Convert(x + 1, y)].pos);
+                }
+                if(data.xloop){
+                    segments.Add(hpos + data.cps[data.Convert(data.count.x - 1, y)].pos);
+                    segments.Add(hpos + data.cps[data.Convert(0, y)].pos);
+                }
+            }
         }
     }
 }

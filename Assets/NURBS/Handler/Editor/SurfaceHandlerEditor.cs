@@ -1,9 +1,9 @@
 ﻿using System.Collections;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
-using System.Linq;
 
 namespace kmty.NURBS {
     [CustomEditor(typeof(SurfaceHandler))]
@@ -12,23 +12,9 @@ namespace kmty.NURBS {
         protected int order;
         protected bool xloop;
         protected bool yloop;
-        protected List<Vector3> segments = new List<Vector3>();
         protected SurfaceHandler handler => (SurfaceHandler)target;
         protected Vector3 hpos => handler.transform.position;
         protected SurfaceCpsData data => handler.Data;
-
-        //private Surface _surface;
-        private int lx;
-        private int ly;
-
-        void OnEnable() {
-            var handler = (SurfaceHandler)target;
-            //_surface?.Dispose();
-            Init(handler.Data);
-        }
-        void onDisable() {
-            //_surface?.Dispose();
-        }
 
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
@@ -36,29 +22,28 @@ namespace kmty.NURBS {
             if (GUILayout.Button("Bake Mesh")) {
                 if (!Directory.Exists(handler.BakePath)) Directory.CreateDirectory(handler.BakePath);
                 var path = handler.BakePath + "/" + handler.BakeName + ".asset";
-                CreateOrUpdate(handler.mesh, path);
+                CreateOrUpdate(Weld(handler.mesh), path);
             }
         }
 
         void OnSceneGUI() {
-            if (!Application.isPlaying) return;
             var handler = (SurfaceHandler)target;
             var data = handler.Data;
             var hpos = handler.transform.position;
-            if (segments.Count == 0) UpdateSegments(data, hpos);
+            if (handler.segments.Count == 0) handler.UpdateSegments(data, hpos);
             var cps = handler.Data.cps;
             if (handler.Data.order != order || handler.Data.xloop != xloop || handler.Data.yloop != yloop) {
-                handler.Reset();
+                handler.Init();
                 order = data.order;
                 xloop = data.xloop;
                 yloop = data.yloop;
             };
 
-            for (int i = 0; i < cps.Count; i++) {
-                var cp = cps[i];
-                if (Application.isPlaying)
+            if (Application.isPlaying) {
+                for (int i = 0; i < cps.Count; i++) {
+                    var cp = cps[i];
                     handler.surface.UpdateCP(data.Convert(i), new CP(hpos + cp.pos, cp.weight));
-                //_surface.UpdateCP(data.Convert(i), new CP(hpos + cp.pos, cp.weight));
+                }
             }
 
             for(var i = 0; i < cps.Count; i++) {
@@ -79,45 +64,12 @@ namespace kmty.NURBS {
                     cp.pos = handler.transform.InverseTransformPoint(pos);
                     cps[selectedId] = cp;
                     handler.UpdateMesh();
-                    UpdateSegments(data, hpos);
+                    handler.UpdateSegments(data, hpos);
                     EditorUtility.SetDirty(handler.Data);
                 }
             }
             Handles.color = Color.gray;
-            Handles.DrawLines(segments.ToArray());
-            //Draw();
-        }
-
-        void Init(SurfaceCpsData data) {
-            var cps = data.cps.Select(cp => new CP(cp.pos, cp.weight)).ToArray();
-            lx = data.count.x;
-            ly = data.count.y;
-            //_surface = new Surface(cps, data.order, lx, ly);
-        }
-
-
-        void UpdateSegments(SurfaceCpsData data, Vector3 hpos) {
-            segments.Clear();
-            for (int x = 0; x < data.count.x; x++) {
-            for (int y = 0; y < data.count.y - 1; y++) {
-                    segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
-                    segments.Add(hpos + data.cps[data.Convert(x, y + 1)].pos);
-                }
-                if(data.yloop){
-                    segments.Add(hpos + data.cps[data.Convert(x, data.count.y - 1)].pos);
-                    segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
-                }
-            }
-            for (int y = 0; y < data.count.y; y++) {
-                for (int x = 0; x < data.count.x - 1; x++) {
-                    segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
-                    segments.Add(hpos + data.cps[data.Convert(x + 1, y)].pos);
-                }
-                if(data.xloop){
-                    segments.Add(hpos + data.cps[data.Convert(data.count.x - 1, y)].pos);
-                    segments.Add(hpos + data.cps[data.Convert(0, y)].pos);
-                }
-            }
+            Handles.DrawLines(handler.segments.ToArray());
         }
 
         void Draw() {
@@ -141,14 +93,43 @@ namespace kmty.NURBS {
             //}
         }
 
-        void CreateOrUpdate(Object newAsset, string assetPath) {
+        void CreateOrUpdate(Object altAsset, string assetPath) {
             var oldAsset = AssetDatabase.LoadAssetAtPath<Mesh>(assetPath);
             if (oldAsset == null) {
-                AssetDatabase.CreateAsset(newAsset, assetPath);
+                AssetDatabase.CreateAsset(altAsset, assetPath);
             } else {
-                EditorUtility.CopySerializedIfDifferent(newAsset, oldAsset);
+                EditorUtility.CopySerializedIfDifferent(altAsset, oldAsset);
                 AssetDatabase.SaveAssets();
             }
+        }
+
+        Mesh Weld(Mesh original) {
+            var ogl_vrts = original.vertices;
+            var ogl_idcs = original.triangles;
+            var alt_mesh = new Mesh();
+            var alt_vrts = ogl_vrts.Distinct().ToArray();
+            var alt_idcs = new int[ogl_idcs.Length];
+            var vrt_rplc = new int[ogl_vrts.Length];
+            for (var i = 0; i < ogl_vrts.Length; i++)
+            {
+                var o = -1;
+                for (var j = 0; j < alt_vrts.Length; j++)
+                {
+                    if (alt_vrts[j] == ogl_vrts[i]) { o = j; break; }
+                }
+                vrt_rplc[i] = o;
+            }
+
+            for (var i = 0; i < alt_idcs.Length; i++)
+            {
+                alt_idcs[i] = vrt_rplc[ogl_idcs[i]];
+            }
+            alt_mesh.SetVertices(alt_vrts);
+            alt_mesh.SetTriangles(alt_idcs, 0);
+            alt_mesh.RecalculateBounds();
+            alt_mesh.RecalculateNormals();
+            alt_mesh.RecalculateTangents();
+            return alt_mesh;
         }
 
     }

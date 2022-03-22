@@ -11,17 +11,21 @@ namespace kmty.NURBS {
     public class Surface: System.IDisposable {
         NativeArray<CP> cps;
         public NativeArray<CP> CPs => cps;
-        public Vector2 min => new Vector2(NURBSSurface.KnotVec(order, order, lx), NURBSSurface.KnotVec(order, order, ly));
-        public Vector2 max => new Vector2(NURBSSurface.KnotVec(lx, order, lx),    NURBSSurface.KnotVec(ly, order, ly));
+        public Vector2 min => new Vector2(NURBSSurface.KnotVec(order, order, lx, xknot), NURBSSurface.KnotVec(order, order, ly, yknot));
+        public Vector2 max => new Vector2(NURBSSurface.KnotVec(lx, order, lx, xknot),    NURBSSurface.KnotVec(ly, order, ly, yknot));
         public int order, lx, ly;
         public bool xloop { get; private set; }
         public bool yloop { get; private set; }
+        public KnotType xknot { get; private set; }
+        public KnotType yknot { get; private set; }
         int idx(int x, int y) => x + y * lx;
 
-        public Surface(CP[] cps, int order, int lx, int ly, bool xloop, bool yloop) {
+        public Surface(CP[] cps, int order, int lx, int ly, bool xloop, bool yloop, KnotType xknot, KnotType yknot) {
             this.order = order;
             this.xloop = xloop;
             this.yloop = yloop;
+            this.xknot = xknot;
+            this.yknot = yknot;
             if (this.xloop && this.yloop) {
                 var arr1d = new CP[(lx + order) * ly];
                 for (int y = 0; y < ly; y++) {
@@ -73,7 +77,7 @@ namespace kmty.NURBS {
         public bool GetCurve(float tx, float ty, out Vector3 v){
             var fx = tx >= min.x && tx <= max.x;
             var fy = ty >= min.y && ty <= max.y;
-            v = NURBSSurface.GetCurve(cps, tx, ty, order, lx, ly);
+            v = NURBSSurface.GetCurve(cps, tx, ty, order, lx, ly, xknot, yknot);
             return fx && fy;
 
         }
@@ -88,14 +92,14 @@ namespace kmty.NURBS {
 
     public static class NURBSSurface {
 
-        public static Vector3 GetCurve(NativeArray<CP> cps, float tx, float ty, int order, int lx, int ly) {
+        public static Vector3 GetCurve(NativeArray<CP> cps, float tx, float ty, int order, int lx, int ly, KnotType xknot, KnotType yknot) {
             var frac = Vector3.zero;
             var deno = 1e-10f;
             tx = Mathf.Min(tx, 1f - 1e-5f);
             ty = Mathf.Min(ty, 1f - 1e-5f);
             for (int y = 0; y < ly; y++) {
                 for (int x = 0; x < lx; x++) {
-                    var bf = BasisFunc(x, order, order, tx, lx) * BasisFunc(y, order, order, ty, ly);
+                    var bf = BasisFunc(x, order, order, tx, lx, xknot) * BasisFunc(y, order, order, ty, ly, yknot);
                     var cp = cps[x + y * lx];
                     frac += cp.pos * bf * cp.weight;
                     deno += bf * cp.weight;
@@ -104,22 +108,24 @@ namespace kmty.NURBS {
             return frac / deno;
         }
 
-        public static float BasisFunc(int j, int k, int order, float t, int l) {
+        public static float BasisFunc(int j, int k, int order, float t, int l, KnotType knot) {
             if (k == 0) {
-                return (t >= KnotVec(j, order, l) && t < KnotVec(j + 1, order, l)) ? 1 : 0;
+                return (t >= KnotVec(j, order, l, knot) && t < KnotVec(j + 1, order, l, knot)) ? 1 : 0;
             }
             else {
-                var d1 = KnotVec(j + k, order, l) - KnotVec(j, order, l);
-                var d2 = KnotVec(j + k + 1, order, l) - KnotVec(j + 1, order, l);
-                var c1 = d1 != 0 ? (t - KnotVec(j, order, l)) / d1 : 0;
-                var c2 = d2 != 0 ? (KnotVec(j + k + 1, order, l) - t) / d2 : 0;
-                return c1 * BasisFunc(j, k - 1, order, t, l) + c2 * BasisFunc(j + 1, k - 1, order, t, l);
+                var d1 = KnotVec(j + k, order, l, knot) - KnotVec(j, order, l, knot);
+                var d2 = KnotVec(j + k + 1, order, l, knot) - KnotVec(j + 1, order, l, knot);
+                var c1 = d1 != 0 ? (t - KnotVec(j, order, l, knot)) / d1 : 0;
+                var c2 = d2 != 0 ? (KnotVec(j + k + 1, order, l, knot) - t) / d2 : 0;
+                return c1 * BasisFunc(j, k - 1, order, t, l, knot) + c2 * BasisFunc(j + 1, k - 1, order, t, l, knot);
             }
         }
 
-        public static float KnotVec(int j, int order, int l) {
-            return UniformKnotVec(j, l + order + 1);
-            //return OpenUniformKnotVec(j, l + order + 1, order);
+        public static float KnotVec(int j, int order, int l, KnotType t) {
+            if (t == KnotType.Uniform)
+                return UniformKnotVec(j, l + order + 1);
+            else
+                return OpenUniformKnotVec(j, l + order + 1, order);
         }
 
         static float UniformKnotVec(int j, int knotNum) {
