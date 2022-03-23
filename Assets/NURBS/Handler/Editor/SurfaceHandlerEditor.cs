@@ -33,7 +33,7 @@ namespace kmty.NURBS {
             if (handler.segments.Count == 0) handler.UpdateSegments(data, hpos);
             var cps = handler.Data.cps;
             if (handler.Data.order != order || handler.Data.xloop != xloop || handler.Data.yloop != yloop) {
-                handler.Init();
+                if (Application.isPlaying) handler.Init();
                 order = data.order;
                 xloop = data.xloop;
                 yloop = data.yloop;
@@ -63,7 +63,7 @@ namespace kmty.NURBS {
                 if (EditorGUI.EndChangeCheck()) {
                     cp.pos = handler.transform.InverseTransformPoint(pos);
                     cps[selectedId] = cp;
-                    handler.UpdateMesh();
+                    if (Application.isPlaying) handler.UpdateMesh();
                     handler.UpdateSegments(data, hpos);
                     EditorUtility.SetDirty(handler.Data);
                 }

@@ -7,6 +7,7 @@ namespace kmty.NURBS {
     public class SplineCpsData : ScriptableObject {
         public int order;
         public bool loop;
+        public KnotType knotType;
         public List<CP> cps;
     }
 }

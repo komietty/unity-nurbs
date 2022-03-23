@@ -14,7 +14,7 @@ namespace kmty.NURBS.Test {
                 new CP(new Vector3(1, 1, 0), 1),
                 new CP(new Vector3(0, 1, 0), 1),
                 };
-            var spline = new Spline(cps, 2, true);
+            var spline = new Spline(cps, 2, true, KnotType.OpenUniform);
         }
 
         // A UnityTest behaves like a coroutine in Play Mode. In Edit Mode you can use

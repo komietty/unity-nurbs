@@ -1,43 +1,41 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-//https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-curve-closed.html
-//https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-derv.html
-// TODO: discrete Curvature
+﻿using UnityEngine;
 
 namespace kmty.NURBS {
     public class Spline {
         public CP[] cps { get; private set; }
-        public float min => KnotVec(order);
-        public float max => KnotVec(ctrlNum);
-        bool closed;
+        bool loop;
         int order;
-        int ctrlNum => cps.Length;             // num of control pooints
-        int knotNum => cps.Length + order + 1; // num of knot vectors
-        KnotType type = KnotType.Uniform;
+        int ctrlNum => cps.Length;
+        int knotNum => cps.Length + order + 1;
+        float min => KnotVec(order);
+        float max => KnotVec(ctrlNum);
+        KnotType knotType;
         Spline hodograph;
 
-        public Spline(CP[] cps, int order, bool closed) {
-            this.closed = closed;
+        public Spline(CP[] cps, int order, bool loop, KnotType knotType) {
+            this.loop = loop;
             this.order = order;
-            if (closed) {
+            this.knotType = knotType;
+            if (loop) {
                 this.cps = new CP[cps.Length + order];
                 System.Array.Copy(cps, this.cps, cps.Length);
-                for (int i = 0; i < order; i++) {
-                    this.cps[this.cps.Length - order + i] = cps[i];
-                }
+                for (int i = 0; i < order; i++) this.cps[this.cps.Length - order + i] = cps[i];
             } else {
                 this.cps = cps;
             }
         }
 
+
         public void SetCP(int i, CP cp) {
             cps[i] = cp;
-            if (closed && i < order) cps[ctrlNum - order + i] = cp;
+            if (loop && i < order) cps[ctrlNum - order + i] = cp;
         }
 
-        public bool GetCurve(float t, out Vector3 v) {
+        public Vector3 GetNorm2Curve(float t) { GetCurve(min + (max - min) * t, out Vector3 v); return v; }
+        public Vector3 GetNorm2Derivative(float t) { return GetDerivative(min + (max - min) * t); }
+        public Vector3 GetNorm2SecondDerivative(float t) { return GetSecondDerivative(min + (max - min) * t); }
+
+        bool GetCurve(float t, out Vector3 v) {
             var frac = Vector3.zero;
             var deno = 1e-10f;
             for (int i = 0; i < cps.Length; i++) {
@@ -50,8 +48,9 @@ namespace kmty.NURBS {
             return t >= KnotVec(order) && t <= KnotVec(ctrlNum); 
         }
 
-        Vector3 GetQ(int i) { return order / (KnotVec(i + order + 1) - KnotVec(i + 1)) * (cps[i + 1].pos - cps[i].pos);}
-        public Vector3 GetDerivative(float t) {
+        Vector3 GetQ(int i) => order / (KnotVec(i + order + 1) - KnotVec(i + 1)) * (cps[i + 1].pos - cps[i].pos);
+
+        Vector3 GetDerivative(float t) {
             var frac = Vector3.zero;
             for (int i = 0; i < cps.Length - 1; i++) {
                 var bf = BasisFunc(i + 1, order - 1, t);
@@ -60,25 +59,21 @@ namespace kmty.NURBS {
             return frac;
         }
 
-        public void CreateHodograph(){
-            var _cps = new CP[ctrlNum - 1];
-            for (var i = 0; i < _cps.Length; i++) {
-                //_cps[i] = new CP(GetQ(i).normalized, 1);
-                _cps[i] = new CP(GetQ(i), 1);
-                //TODO: how about weight??
-                //TODO: is it nessaray, nomalize for curvature??
+        Vector3 GetSecondDerivative(float t) {
+            if(hodograph == null) {
+                var cqs = new CP[ctrlNum - 1];
+                for (var i = 0; i < cqs.Length; i++) {
+                    cqs[i] = new CP(GetQ(i), 1);
+                    //TODO: what about weight??
+                    //TODO: nomalize for curvature??
+                }
+                hodograph = new Spline(cqs, order - 1, loop, this.knotType);
             }
-            hodograph = new Spline(_cps, order - 1, closed);
+            return hodograph.GetDerivative(t);
         }
 
-        public Vector3 GetSecondDerivative(float t) => hodograph.GetDerivative(t);
-
-
-
         float BasisFunc(int j, int k, float t) {
-            if (k == 0) {
-                return (t >= KnotVec(j) && t < KnotVec(j + 1)) ? 1f : 0f;
-            }
+            if (k == 0) { return (t >= KnotVec(j) && t < KnotVec(j + 1)) ? 1f : 0f; }
             else {
                 var d1 = KnotVec(j + k) - KnotVec(j);
                 var d2 = KnotVec(j + k + 1) - KnotVec(j + 1);
@@ -89,7 +84,7 @@ namespace kmty.NURBS {
         }
 
         float KnotVec(int j) {
-            switch(type){
+            switch(knotType){
                 case KnotType.OpenUniform: return OpenUniformKnotVec(j);
                 default: return UniformKnotVec(j);
             }

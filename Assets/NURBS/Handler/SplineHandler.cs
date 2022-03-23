@@ -5,12 +5,14 @@ using UnityEngine;
 namespace kmty.NURBS {
     public class SplineHandler : MonoBehaviour {
         [SerializeField] protected SplineCpsData data;
+        public bool showSegments;
+        public bool show1stDerivative;
+        public bool show2ndDerivative;
         public SplineCpsData Data { get { return data; } set { data = value; } }
         public Spline spline { get; protected set; }
-        public float normalizedT(float time) => (time * (1 + data.cps.Count) + (data.order - 1)) / (data.cps.Count + data.order);
 
         void Start() {
-            spline = new Spline(data.cps.ToArray(), data.order, data.loop);
+            spline = new Spline(data.cps.ToArray(), data.order, data.loop, data.knotType);
 
             // convert to world coordinate
             for (int i = 0; i < data.cps.Count; i++)

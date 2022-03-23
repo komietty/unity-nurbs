@@ -7,14 +7,22 @@ using System.Linq;
 namespace kmty.NURBS {
     [CustomEditor(typeof(SplineHandler))]
     public class SplineHandlerEditor : Editor {
-        private Spline _spline;
-        private int selectedId = -1;
-        private int length;
+        Spline _spline;
+        int selectedId = -1;
+        int length;
 
         void OnEnable() {
             var handler = (SplineHandler)target;
             Init(handler.Data);
         }
+
+        //public override void OnInspectorGUI() {
+        //    base.OnInspectorGUI();
+        //    EditorGUILayout.Space(1);
+        //    EditorGUILayout.Toggle("Show Segments", showSegments);
+        //    EditorGUILayout.Toggle("Show 1st Derivative", show1stDerivative);
+        //    EditorGUILayout.Toggle("Show 2nd Derivative", show2ndDerivative);
+        //}
 
         void OnSceneGUI() {
             var handler = (SplineHandler)target;
@@ -56,26 +64,29 @@ namespace kmty.NURBS {
             var trs = hdl.transform;
             var cps = data.cps.Select(cp => new CP(trs.TransformPoint(cp.pos), cp.weight)).ToArray();
             length = cps.Length;
-            _spline = new Spline(cps, data.order, data.loop);
-            _spline.CreateHodograph();
+            _spline = new Spline(cps, data.order, data.loop, data.knotType);
         }
 
         void Draw() {
+            var seg = 0.005f;
+            var handler = (SplineHandler)target;
             if (_spline == null) return;
-            var seg = 0.003f;
-            //for (int i = 0; i < _spline.cps.Length - 1; i++)
-            //    Handles.DrawLine(_spline.cps[i].pos, _spline.cps[i + 1].pos);
-            for (float t = _spline.min; t < _spline.max - seg; t += seg) {
-                var f1 = _spline.GetCurve(t, out Vector3 v1);
-                var f2 = _spline.GetCurve(t + seg, out Vector3 v2);
-                var dr1 = _spline.GetDerivative(t);
-                var dr2 = _spline.GetSecondDerivative(t);
+            if (handler.showSegments) {
+                Handles.color = Color.grey;
+                for (int i = 0; i < _spline.cps.Length - 1; i++)
+                    Handles.DrawLine(_spline.cps[i].pos, _spline.cps[i + 1].pos);
+            }
+            for (float t = 0; t < 1 - seg; t += seg) {
+                var va = _spline.GetNorm2Curve(t);
+                var vb = _spline.GetNorm2Curve(t + seg);
+                var d1 = _spline.GetNorm2Derivative(t);
+                var d2 = _spline.GetNorm2SecondDerivative(t);
                 Handles.color = Color.cyan;
-                Handles.DrawLine(v1, v1 + dr1 * 0.04f);
+                if (handler.show1stDerivative) Handles.DrawLine(va, va + d1 * 0.04f);
                 Handles.color = Color.yellow;
-                //Handles.DrawLine(v1, v1 + dr2 * 0.002f);
-                Handles.color = Color.red;
-                if (f1 && f2) Handles.DrawLine(v1, v2);
+                if (handler.show2ndDerivative) Handles.DrawLine(va, va + d2 * 0.001f);
+                Handles.color = Color.cyan;
+                Handles.DrawLine(va, vb);
             }
         }
     }
