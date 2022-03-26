@@ -17,14 +17,13 @@ namespace kmty.NURBS {
         public Mesh mesh { get; private set; }
         public string BakePath => bakePath;
         public string BakeName => bakeName;
-        //protected float normalizedT(float t, int count) => Mathf.Clamp((t * (count + 1) + data.order - 1) / (count + data.order), 0, 1 - 1e-5f);
-        protected MeshRenderer rndr;
-        protected MeshFilter   fltr;
         protected NativeArray<Vector3> vtcs;
         public List<Vector3> segments { get; protected set; } = new List<Vector3>();
+        //protected Vector2Int prv_division;
 
         void Start() {
             Init();
+            //prv_division = division;
             for (int y = 0; y < data.count.y; y++)
                 for (int x = 0; x < data.count.x; x++) {
                     var i = data.Convert(x, y);
@@ -33,6 +32,20 @@ namespace kmty.NURBS {
             CreateMesh();
             UpdateSegments(data, transform.position);
         }
+        
+        //void Update() {
+        //    if(prv_division != division) {
+        //        prv_division = division;
+        //        Init();
+        //        for (int y = 0; y < data.count.y; y++)
+        //            for (int x = 0; x < data.count.x; x++) {
+        //                var i = data.Convert(x, y);
+        //                surface.UpdateCP(new Vector2Int(x, y), new CP(transform.position + data.cps[i].pos, data.cps[i].weight));
+        //            }
+        //        CreateMesh();
+        //        UpdateSegments(data, transform.position);
+        //    }
+        //}
 
         void OnDestroy() {
             surface.Dispose();
@@ -46,9 +59,9 @@ namespace kmty.NURBS {
 
         void CreateMesh() {
             mesh = new Mesh();
-            fltr = gameObject.AddComponent<MeshFilter>();
-            rndr = gameObject.AddComponent<MeshRenderer>();
             vtcs = new NativeArray<Vector3>((division.x + 1) * (division.y + 1), Allocator.Persistent);
+            var fltr = gameObject.AddComponent<MeshFilter>();
+            var rndr = gameObject.AddComponent<MeshRenderer>();
             var idcs = new List<int>();
             var lx = division.x + 1;
             var ly = division.y + 1;
@@ -76,7 +89,6 @@ namespace kmty.NURBS {
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             mesh.RecalculateBounds();
-
             rndr.material = mat;
             fltr.mesh = mesh;
         }

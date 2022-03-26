@@ -20,9 +20,9 @@ namespace kmty.NURBS {
             base.OnInspectorGUI();
             EditorGUILayout.Space(1);
             if (GUILayout.Button("Bake Mesh")) {
-                if (!Directory.Exists(handler.BakePath)) Directory.CreateDirectory(handler.BakePath);
-                var path = handler.BakePath + "/" + handler.BakeName + ".asset";
+                var path = $"{handler.BakePath}/{handler.BakeName}.asset";
                 CreateOrUpdate(Weld(handler.mesh), path);
+                //CreateOrUpdate(handler.mesh, path);
             }
         }
 
@@ -110,18 +110,15 @@ namespace kmty.NURBS {
             var alt_vrts = ogl_vrts.Distinct().ToArray();
             var alt_idcs = new int[ogl_idcs.Length];
             var vrt_rplc = new int[ogl_vrts.Length];
-            for (var i = 0; i < ogl_vrts.Length; i++)
-            {
+            for (var i = 0; i < ogl_vrts.Length; i++) {
                 var o = -1;
-                for (var j = 0; j < alt_vrts.Length; j++)
-                {
+                for (var j = 0; j < alt_vrts.Length; j++) {
                     if (alt_vrts[j] == ogl_vrts[i]) { o = j; break; }
                 }
                 vrt_rplc[i] = o;
             }
 
-            for (var i = 0; i < alt_idcs.Length; i++)
-            {
+            for (var i = 0; i < alt_idcs.Length; i++) {
                 alt_idcs[i] = vrt_rplc[ogl_idcs[i]];
             }
             alt_mesh.SetVertices(alt_vrts);

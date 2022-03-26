@@ -7,10 +7,12 @@ namespace kmty.NURBS {
         int order;
         int ctrlNum => cps.Length;
         int knotNum => cps.Length + order + 1;
-        float min => KnotVec(order);
-        float max => KnotVec(ctrlNum);
+        float min => knots[order];
+        float max => knots[ctrlNum];
+        public float shift(float t) => min + (max - min) * t;
+        float[] knots;
+        float[] knots_droped;
         KnotType knotType;
-        Spline hodograph;
 
         public Spline(CP[] cps, int order, bool loop, KnotType knotType) {
             this.loop = loop;
@@ -23,19 +25,28 @@ namespace kmty.NURBS {
             } else {
                 this.cps = cps;
             }
-        }
 
+            knots = new float[knotNum];
+            for (int i = 0; i < knotNum; i++) {
+                if (knotType == KnotType.Uniform) knots[i] = i / (float)(knotNum - 1);
+                else {
+                    //knots[i] = OpenUniformKnotVec(i);
+                    if (i <= order) knots[i] = 0f;
+                    if (i >= knotNum - 1 - order) knots[i] = 1f;
+                    knots[i] = (float)i / (knotNum - order + 1);
+                }
+            }
+
+            knots_droped = new float[knotNum - 2];
+            for (int i = 0; i < knotNum - 2; i++) { knots_droped[i] = knots[i + 1]; }
+        }
 
         public void SetCP(int i, CP cp) {
             cps[i] = cp;
             if (loop && i < order) cps[ctrlNum - order + i] = cp;
         }
 
-        public Vector3 GetNorm2Curve(float t) { GetCurve(min + (max - min) * t, out Vector3 v); return v; }
-        public Vector3 GetNorm2Derivative(float t) { return GetDerivative(min + (max - min) * t); }
-        public Vector3 GetNorm2SecondDerivative(float t) { return GetSecondDerivative(min + (max - min) * t); }
-
-        bool GetCurve(float t, out Vector3 v) {
+        public bool GetCurve(float t, out Vector3 v) {
             var frac = Vector3.zero;
             var deno = 1e-10f;
             for (int i = 0; i < cps.Length; i++) {
@@ -45,61 +56,88 @@ namespace kmty.NURBS {
                 deno += bf * cp.weight;
             }
             v = frac / deno;
-            return t >= KnotVec(order) && t <= KnotVec(ctrlNum); 
+            return t >= knots[order] && t <= knots[ctrlNum]; 
         }
 
-        Vector3 GetQ(int i) => order / (KnotVec(i + order + 1) - KnotVec(i + 1)) * (cps[i + 1].pos - cps[i].pos);
-
-        Vector3 GetDerivative(float t) {
-            var frac = Vector3.zero;
-            for (int i = 0; i < cps.Length - 1; i++) {
-                var bf = BasisFunc(i + 1, order - 1, t);
-                frac += bf * GetQ(i);
+        float BasisFancFirstDerivative(int i, int o, float t) {
+            if (knotType == KnotType.Uniform) {
+                var i1 = BasisFunc(i + 1, o - 1, t) / (knots[i + o] - knots[i + 1]);
+                var i2 = BasisFunc(i, o - 1, t) / (knots[i + o - 1] - knots[i]);
+                return o * (-i1 + i2);
+            } else {
+                return 0;
             }
-            return frac;
         }
 
-        Vector3 GetSecondDerivative(float t) {
-            if(hodograph == null) {
-                var cqs = new CP[ctrlNum - 1];
-                for (var i = 0; i < cqs.Length; i++) {
-                    cqs[i] = new CP(GetQ(i), 1);
-                    //TODO: what about weight??
-                    //TODO: nomalize for curvature??
-                }
-                hodograph = new Spline(cqs, order - 1, loop, this.knotType);
+        float BasisFancSecondDerivative(int i, int o, float t) {
+            if (knotType == KnotType.Uniform) {
+                var i1 = BasisFancFirstDerivative(i + 1, o - 1, t) / (knots[i + o] - knots[i + 1]);
+                var i2 = BasisFancFirstDerivative(i, o - 1, t) / (knots[i + o - 1] - knots[i]);
+                return o * (-i1 + i2);
+            } else {
+                return 0;
             }
-            return hodograph.GetDerivative(t);
+        }
+
+        public Vector3 GetFirstDerivative(float t) {
+            var v = Vector3.zero;
+            for (int i = 0; i < cps.Length; i++) 
+                v += BasisFancFirstDerivative(i, order, t) * cps[i].pos;
+            return v;
+        }
+
+        public Vector3 GetFirstDerivative_(float t) {
+            if(hodograph == null) hodograph = GenHodograph(this); 
+            hodograph.GetCurve(t, out Vector3 v);
+            return v;
+        }
+
+        public Vector3 GetSecondDerivative(float t) {
+            var v = Vector3.zero;
+            for (int i = 0; i < cps.Length; i++) 
+                v += BasisFancSecondDerivative(i, order, t) * cps[i].pos;
+            return v;
         }
 
         float BasisFunc(int j, int k, float t) {
-            if (k == 0) { return (t >= KnotVec(j) && t < KnotVec(j + 1)) ? 1f : 0f; }
+            if (k == 0) { return (t >= knots[j] && t < knots[j + 1]) ? 1f : 0f; }
             else {
-                var d1 = KnotVec(j + k) - KnotVec(j);
-                var d2 = KnotVec(j + k + 1) - KnotVec(j + 1);
-                var c1 = d1 != 0 ? (t - KnotVec(j)) / d1 : 0;
-                var c2 = d2 != 0 ? (KnotVec(j + k + 1) - t) / d2 : 0;
+                var d1 = knots[j + k] - knots[j];
+                var d2 = knots[j + k + 1] - knots[j + 1];
+                var c1 = d1 != 0 ? (t - knots[j]) / d1 : 0;
+                var c2 = d2 != 0 ? (knots[j + k + 1] - t) / d2 : 0;
                 return c1 * BasisFunc(j, k - 1, t) + c2 * BasisFunc(j + 1, k - 1, t);
             }
         }
 
-        float KnotVec(int j) {
-            switch(knotType){
-                case KnotType.OpenUniform: return OpenUniformKnotVec(j);
-                default: return UniformKnotVec(j);
+        public Spline hodograph {get; set;}
+        public static Spline GenHodograph(Spline s) {
+            var cps = new CP[s.cps.Length - 1];
+            for (var i = 0; i < cps.Length; i++) {
+                var q = s.order 
+                        / (s.knots[i + s.order + 1] - s.knots[i + 1])
+                        * (s.cps[i + 1].pos - s.cps[i].pos);
+                cps[i] = new CP(q, 1);
             }
+            return new Spline(cps, s.order - 1, s.loop, s.knotType);
         }
 
-        float UniformKnotVec(int j) {
-            var t0 = 0f;
-            var t1 = 1f;
-            return t0 + (t1 - t0) / (knotNum - 1) * j;
-        }
-
-        float OpenUniformKnotVec(int j) {
-            if (j <= order)               return 0f;
-            if (j >= knotNum - 1 - order) return 1f;
-            return (float)j / (knotNum - order + 1);
-        }
+        //public Vector3 GetCurveOffset(float t) {
+        //    var frac = Vector3.zero;
+        //    for (int i = 0; i < cps.Length; i++) {
+        //        var bf = BasisFunc(i + 1, order, t);
+        //        var cp = cps[i];
+        //        frac += cp.pos * bf;
+        //    }
+        //    return frac;
+        //}
+        //public Vector3 GetDerivativeOffset(float t) {
+        //    var frac = Vector3.zero;
+        //    for (int i = 0; i < cps.Length - 1; i++) {
+        //        var bf = BasisFunc(i + 2, order - 1, t);
+        //        frac += bf * GetQ(i);
+        //    }
+        //    return frac;
+        //}
     }
 }

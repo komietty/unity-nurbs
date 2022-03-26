@@ -1,0 +1,11 @@
+#pragma kernel CalcCurvature
+#define PI 3.1415926538
+#include "./Curvature.hlsl"
+
+RWStructuredBuffer<float> _Curvatures;
+
+[numthreads(256,1,1)]
+void CalcCurvature (uint3 id : SV_DispatchThreadID) {
+    uint vid = id.x;
+    _Curvatures[vid] = GenGaussianCurvature(vid);
+}

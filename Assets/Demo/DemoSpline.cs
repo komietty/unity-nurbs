@@ -18,8 +18,8 @@ namespace kmty.NURBS.Demo {
 
         void Update() {
             value = value % 1f;
-            value += speed / handler.spline.GetNorm2Derivative(value).magnitude;
-            var p =handler.spline.GetNorm2Curve(value);
+            value += speed / handler.spline.GetFirstDerivative(handler.spline.shift(value)).magnitude;
+            handler.spline.GetCurve(handler.spline.shift(value), out Vector3 p);
             velocity = (p - tracer.transform.position).magnitude * 10000;
             tracer.transform.position = p;
         }
