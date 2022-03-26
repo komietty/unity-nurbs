@@ -6,11 +6,8 @@ namespace kmty.NURBS {
         public bool showSegments;
         public bool show1stDerivative;
         public bool show2ndDerivative;
-        public bool showHodograph;
         public SplineCpsData Data { get { return data; } set { data = value; } }
         public Spline spline { get; protected set; }
-        [Range(-1f, 1f)] public float t1;
-        [Range(-1f, 2f)] public float t2;
 
         void Start() {
             spline = new Spline(data.cps.ToArray(), data.order, data.loop, data.knotType);

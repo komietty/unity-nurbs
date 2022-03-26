@@ -330,9 +330,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: a870621b9944ac54aa555181b943cc56, type: 2}
-  showSegments: 1
+  showSegments: 0
   show1stDerivative: 1
   show2ndDerivative: 1
+  showHodograph: 0
   t1: 0
   t2: 1
 --- !u!4 &721559473

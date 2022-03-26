@@ -64,25 +64,20 @@ namespace kmty.NURBS {
                 for (int i = 0; i < s.cps.Length - 1; i++)
                     Handles.DrawLine(s.cps[i].pos, s.cps[i + 1].pos);
             }
-            for (float t = h.t1; t < h.t2 - seg; t += seg) {
+            for (float t = 0; t < 1 - seg; t += seg) {
                 s.GetCurve(s.shift(t), out Vector3 va);
                 s.GetCurve(s.shift(t + seg), out Vector3 vb);
                 var d1 = s.GetFirstDerivative(s.shift(t));
-                //var d3 = s.GetFirstDerivative_(s.shift(t));
-                var d3 = s.GetFirstDerivative_(s.shift(t));
                 var d2 = s.GetSecondDerivative(s.shift(t)) * 0.1f;
-                Handles.color = new Vector4(d1.x * 0.05f + 0.5f, d1.y * 0.05f + 0.5f, d1.z * 0.05f + 0.5f, 1);
-                if (h.show1stDerivative) Handles.DrawLine(va, va + d1 * 0.02f);
-                Handles.color = Color.yellow;
-                if (h.show2ndDerivative) Handles.DrawLine(va, va + d2 * 0.005f);
-                Handles.color = Color.cyan;
+                var c1 = d1 * 0.05f + Vector3.one * 0.5f;
+                var c2 = d2 * 0.05f + Vector3.one * 0.5f;
+                Handles.color = new Vector4(c1.x, c1.y, c1.z, 1);
+                if (h.show1stDerivative) Handles.DrawLine(va, va + d1 * 0.05f);
+                Handles.color = Color.white;
+                //Handles.color = new Vector4(c2.x, c2.y, c2.z, 1);
+                if (h.show2ndDerivative) Handles.DrawLine(va, va + d2 * 0.01f);
+                Handles.color = Color.white;
                 Handles.DrawLine(va, vb);
-                if (h.showHodograph) {
-                    Handles.color = Color.magenta;
-                    Handles.DrawLine(va, va + d3 * 0.05f);
-                }
-                //Handles.color = Color.cyan;
-                //Handles.DrawLine(va, va + d1 * 0.005f);
             }
         }
     }
