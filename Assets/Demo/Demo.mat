@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Tester
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Name: Demo
+  m_Shader: {fileID: 4800000, guid: 3dfa69e9955dc42529f409acbdf080dc, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -88,9 +88,9 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.68
+    - _Glossiness: 1
     - _GlossyReflections: 1
-    - _Metallic: 0.18
+    - _Metallic: 0.188
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02

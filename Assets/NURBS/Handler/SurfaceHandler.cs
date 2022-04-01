@@ -147,8 +147,8 @@ namespace kmty.NURBS {
                 }
                 if (data.yloop) {
                     segments.Add(hpos + data.cps[data.Convert(x, data.count.y - 1)].pos);
-                    //segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
-                    segments.Add(hpos + data.cps[data.Convert(data.count.x - x - 1, 0)].pos);
+                    segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
+                    //segments.Add(hpos + data.cps[data.Convert(data.count.x - x - 1, 0)].pos);
                 }
             }
             for (int y = 0; y < data.count.y; y++) {

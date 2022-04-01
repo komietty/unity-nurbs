@@ -21,8 +21,8 @@ namespace kmty.NURBS {
             EditorGUILayout.Space(1);
             if (GUILayout.Button("Bake Mesh")) {
                 var path = $"{handler.BakePath}/{handler.BakeName}.asset";
-                //CreateOrUpdate(Weld(handler.mesh), path);
-                CreateOrUpdate(handler.mesh, path);
+                CreateOrUpdate(Weld(handler.mesh), path);
+                //CreateOrUpdate(handler.mesh, path);
             }
         }
 
