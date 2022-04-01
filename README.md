@@ -5,7 +5,7 @@ Unity base NURBS spline and surface module
 ## Spline
 Spline module offers **Standard, Loop, Clamped** mode. 
 
-First & second devivatives are available from `GetFirstDerivative` and `GetSecondDerivative` as they are shown below.
+`GetCurve` function offers [0, 1) -> position on curve in whichever mode. First & second devivatives are available from `GetFirstDerivative` and `GetSecondDerivative` as they are shown below, currently only active Standard or Loop mode.
 
 <img src="Imgs/dv_1.png" width="50%"><img src="Imgs/dv_2.png" width="50%">
 
