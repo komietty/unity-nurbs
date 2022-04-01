@@ -19,7 +19,7 @@ namespace kmty.NURBS.Demo {
         void Update() {
             var s = handler.spline;
             value = value % 1f;
-            if(s.type == KnotType.Uniform){
+            if(s.knotType == KnotType.Uniform){
                 value += speed / s.GetFirstDerivative(s.shift(value)).magnitude;
             } else {
                 // TODO: when it could get derivative for clamped curve, normalize the speed;

@@ -54,7 +54,7 @@ namespace kmty.NURBS {
             var trs = hdl.transform;
             var cps = data.cps.Select(c => new CP(trs.TransformPoint(c.pos), c.weight)).ToArray();
             length = cps.Length;
-            spline = new Spline(cps, data.order, data.loop, data.knotType);
+            spline = new Spline(cps, data.order, data.type);
         }
 
         void Draw(Spline s, SplineHandler h) {
@@ -69,14 +69,17 @@ namespace kmty.NURBS {
                 s.GetCurve(s.shift(t + seg), out Vector3 vb);
                 var d1 = s.GetFirstDerivative(s.shift(t));
                 var d2 = s.GetSecondDerivative(s.shift(t)) * 0.1f;
-                var c1 = d1 * 0.05f + Vector3.one * 0.5f;
-                var c2 = d2 * 0.05f + Vector3.one * 0.5f;
-                Handles.color = new Vector4(c1.x, c1.y, c1.z, 1);
-                if (h.show1stDerivative) Handles.DrawLine(va, va + d1 * 0.05f);
-                Handles.color = Color.white;
-                //Handles.color = new Vector4(c2.x, c2.y, c2.z, 1);
-                if (h.show2ndDerivative) Handles.DrawLine(va, va + d2 * 0.01f);
-                Handles.color = Color.white;
+                var c1 = d1 * 0.1f + Vector3.one * 0.5f;
+                var c2 = d2 * 0.1f + Vector3.one * 0.5f;
+                if (h.show1stDerivative) {
+                    Handles.color = new Vector4(c1.x, c1.y, c1.z, 1);
+                    Handles.DrawLine(va, va + d1 * 0.05f);
+                 }
+                if (h.show2ndDerivative) {
+                    Handles.color = new Vector4(c2.x, c2.y, c2.z, 1);
+                    Handles.DrawLine(va, va + d2 * 0.01f);
+                 }
+                Handles.color = Color.cyan;
                 Handles.DrawLine(va, vb);
             }
         }

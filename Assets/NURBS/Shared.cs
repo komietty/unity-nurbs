@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 namespace kmty.NURBS {
+
     [System.Serializable]
     public struct CP {
         public Vector3 pos;
@@ -8,9 +9,10 @@ namespace kmty.NURBS {
         public CP(Vector3 p, float w) { pos = p; weight = w; }
     }
 
+    public enum KnotType { Uniform, OpenUniform }
+    public enum SplineType { Standard, Loop, Clamped }
+
     public static class SplineCommon {
-
-
         public static float KnotVector(int j, int order, int knotNum, KnotType type) {
             if(type == KnotType.Uniform)     return UniformKnotVec(j, knotNum);
             if(type == KnotType.OpenUniform) return OpenUniformKnotVec(j, order, knotNum);

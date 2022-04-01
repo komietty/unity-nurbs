@@ -21,16 +21,12 @@ Shader "Unlit/Kd" {
                 float4 color: COLOR;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
             float _ColorScale;
 
             v2f vert (uint vid: SV_VertexID, appdata val) {
                 v2f o;
-                float k = GenGaussianCurvature(vid) * _ColorScale;
-                float e = clamp(k, 0, 1);
-                float s = clamp(-k, 0, 1);
-                o.color = float4(1 - s, 1 - s - e, 1 - e, 1);
+                float3 c = GenGaussianCurvatureColor(vid, _ColorScale);
+                o.color = float4(c, 1);
                 o.vertex = UnityObjectToClipPos(val.vertex);
                 return o;
             }

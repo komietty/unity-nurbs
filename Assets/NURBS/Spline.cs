@@ -6,7 +6,8 @@
 namespace kmty.NURBS {
     public class Spline {
         public CP[] cps { get; protected set; }
-        public KnotType type { get; protected set; }
+        public SplineType splineType { get; protected set; }
+        public KnotType knotType { get; protected set; }
         bool loop;
         int order;
         float min => knots[order];
@@ -14,10 +15,10 @@ namespace kmty.NURBS {
         float[] knots;
         public float shift(float t) => min + (max - min) * t;
 
-        public Spline(CP[] cps, int order, bool loop, KnotType type) {
-            this.loop = loop;
-            this.order = order;
-            this.type = type;
+        public Spline(CP[] cps, int order, SplineType t) {
+            this.order    = order;
+            this.loop     = t == SplineType.Loop;
+            this.knotType = t == SplineType.Clamped ? KnotType.OpenUniform : KnotType.Uniform;
             if (loop) {
                 this.cps = new CP[cps.Length + order];
                 System.Array.Copy(cps, this.cps, cps.Length);
@@ -29,7 +30,7 @@ namespace kmty.NURBS {
             int knotNum = this.cps.Length + order + 1;
             knots = new float[knotNum];
             for (int i = 0; i < knotNum; i++) {
-                knots[i] = SplineCommon.KnotVector(i, order, knotNum, type);
+                knots[i] = SplineCommon.KnotVector(i, order, knotNum, knotType);
             }
         }
 
@@ -97,7 +98,7 @@ namespace kmty.NURBS {
 
         public static Spline GenHodograph(Spline s) {
             var cps = new CP[s.cps.Length - 1];
-            if(s.type == KnotType.OpenUniform) {
+            if(s.knotType == KnotType.OpenUniform) {
                 for (var i = 0; i < cps.Length; i++) {
                     var q = Vector3.zero;
                     if (i == 0) {
@@ -116,7 +117,7 @@ namespace kmty.NURBS {
                     cps[i] = new CP(s.order * q, 1);
                 }
             }
-            return new Spline(cps, s.order - 1, s.loop, s.type);
+            return new Spline(cps, s.order - 1, s.splineType);
         }
     }
 }

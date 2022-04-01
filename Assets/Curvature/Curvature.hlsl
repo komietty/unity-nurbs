@@ -1,3 +1,6 @@
+#ifndef CURVATURE
+#define CURVATURE
+
 #define PI 3.1415926538
 StructuredBuffer<float3> _Vrts;
 StructuredBuffer<int3>   _Idxs;
@@ -23,3 +26,19 @@ float GenGaussianCurvature(uint vid) {
     }
     return (1.0 - s / (PI * 2)) * 12;
 }
+
+float3 GenGaussianCurvatureColor(uint vid: SV_VertexID, float scale) {
+    float k = GenGaussianCurvature(vid) * scale;
+    float e = clamp(k, 0, 1);
+    float s = clamp(-k, 0, 1);
+    return float3(1 - s, 1 - s - e, 1 - e);
+}
+
+void GenGaussianCurvatureColor_float(uint vid: SV_VertexID, float scale, out float3 o) {
+    float k = GenGaussianCurvature(vid) * scale;
+    float e = clamp(k, 0, 1);
+    float s = clamp(-k, 0, 1);
+    o = float3(1 - s, 1 - s - e, 1 - e);
+}
+
+#endif

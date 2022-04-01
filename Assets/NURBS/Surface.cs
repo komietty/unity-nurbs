@@ -20,10 +20,12 @@ namespace kmty.NURBS {
         public KnotType yknot { get; private set; }
         int idx(int x, int y) => x + y * lx;
 
-        public Surface(CP[] cps, int order, int lx, int ly, bool xloop, bool yloop, KnotType xknot, KnotType yknot) {
+        public Surface(CP[] cps, int order, int lx, int ly, SplineType xtype, SplineType ytype) {
             this.order = order;
-            this.xloop = xloop;
-            this.yloop = yloop;
+            this.xloop = xtype == SplineType.Loop;
+            this.yloop = ytype == SplineType.Loop;
+            this.xknot = xtype == SplineType.Clamped ? KnotType.OpenUniform : KnotType.Uniform;
+            this.yknot = ytype == SplineType.Clamped ? KnotType.OpenUniform : KnotType.Uniform;
             this.xknot = xknot;
             this.yknot = yknot;
             if (this.xloop && this.yloop) {
@@ -47,8 +49,9 @@ namespace kmty.NURBS {
             } else if (this.yloop) {
                 var _cps = cps.ToList();
                 for (int i = 0; i < order; i++) {
-                    var row = new CP[lx]; 
+                    var row = new CP[lx];
                     System.Array.Copy(cps, i * lx, row, 0, lx);
+                    //for (int j = 0; j < lx; j++) { row[lx - j - 1] = cps[i * lx + j]; }
                     _cps.AddRange(row);
                 }
                 this.lx = lx;

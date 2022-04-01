@@ -54,7 +54,7 @@ namespace kmty.NURBS {
 
         public void Init() {
             if (surface != null) surface.Dispose();
-            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xloop, data.yloop, data.xknot, data.yknot);
+            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xtype, data.ytype);
         }
 
         void CreateMesh() {
@@ -141,13 +141,14 @@ namespace kmty.NURBS {
         public void UpdateSegments(SurfaceCpsData data, Vector3 hpos) {
             segments.Clear();
             for (int x = 0; x < data.count.x; x++) {
-            for (int y = 0; y < data.count.y - 1; y++) {
+                for (int y = 0; y < data.count.y - 1; y++) {
                     segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
                     segments.Add(hpos + data.cps[data.Convert(x, y + 1)].pos);
                 }
-                if(data.yloop){
+                if (data.yloop) {
                     segments.Add(hpos + data.cps[data.Convert(x, data.count.y - 1)].pos);
-                    segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
+                    //segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
+                    segments.Add(hpos + data.cps[data.Convert(data.count.x - x - 1, 0)].pos);
                 }
             }
             for (int y = 0; y < data.count.y; y++) {

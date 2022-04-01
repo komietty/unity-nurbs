@@ -10,7 +10,7 @@ namespace kmty.NURBS {
         public Spline spline { get; protected set; }
 
         void Start() {
-            spline = new Spline(data.cps.ToArray(), data.order, data.loop, data.knotType);
+            spline = new Spline(data.cps.ToArray(), data.order, data.type);
 
             // convert to world coordinate
             for (int i = 0; i < data.cps.Count; i++)

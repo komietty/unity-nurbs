@@ -6,8 +6,7 @@ namespace kmty.NURBS {
     [CreateAssetMenu(menuName = "kmty/Create ControlPointsData/Spline", fileName = "SplineCpsData")]
     public class SplineCpsData : ScriptableObject {
         public int order;
-        public bool loop;
-        public KnotType knotType;
+        public SplineType type;
         public List<CP> cps;
     }
 }
