@@ -20,12 +20,13 @@ namespace kmty.NURBS.Demo {
             var s = handler.spline;
             value = value % 1f;
             if(s.knotType == KnotType.Uniform){
-                value += speed / s.GetFirstDerivative(s.shift(value)).magnitude;
+                s.GetFirstDerivative(value, out Vector3 d);
+                value += speed / d.magnitude;
             } else {
                 // TODO: when it could get derivative for clamped curve, normalize the speed;
                 value += speed * 0.1f;
             }
-            s.GetCurve(s.shift(value), out Vector3 p);
+            s.GetCurve(value, out Vector3 p);
             velocity = (p - tracer.transform.position).magnitude * 10000;
             tracer.transform.position = p;
         }

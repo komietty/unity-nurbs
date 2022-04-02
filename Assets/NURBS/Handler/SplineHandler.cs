@@ -11,8 +11,6 @@ namespace kmty.NURBS {
 
         void Start() {
             spline = new Spline(data.cps.ToArray(), data.order, data.type);
-
-            // convert to world coordinate
             for (int i = 0; i < data.cps.Count; i++)
                 spline.SetCP(i, new CP(transform.TransformPoint(data.cps[i].pos), data.cps[i].weight));
         }

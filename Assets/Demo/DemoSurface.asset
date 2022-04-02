@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7efc3709c3ae6264ebeb93e31202f2c7, type: 3}
+  m_Name: DemoSurface
+  m_EditorClassIdentifier: 
+  order: 2
+  xtype: 1
+  ytype: 1
+  size: {x: 4, y: 4}
+  count: {x: 7, y: 5}
+  cps:
+  - pos: {x: 3, y: 0, z: 0}
+    weight: 1
+  - pos: {x: 1.8704693, y: 2.3454945, z: 0}
+    weight: 1
+  - pos: {x: -0.66756284, y: 2.9247837, z: 0}
+    weight: 1
+  - pos: {x: -2.7029066, y: 1.3016508, z: 0}
+    weight: 1
+  - pos: {x: -2.9822125, y: -1.3016512, z: 0.9838402}
+    weight: 1
+  - pos: {x: -0.667563, y: -2.9247837, z: 0}
+    weight: 1
+  - pos: {x: 2.3317041, y: -2.345494, z: 1.8207502}
+    weight: 1
+  - pos: {x: 2.309017, y: 0, z: 0.95105654}
+    weight: 1
+  - pos: {x: 1.4396485, y: 1.8052622, z: 3.9871511}
+    weight: 1
+  - pos: {x: -0.5138047, y: 2.251125, z: 0.95105654}
+    weight: 1
+  - pos: {x: -2.0803525, y: 1.0018446, z: 0.95105654}
+    weight: 1
+  - pos: {x: -2.0803523, y: -1.001845, z: 3.4302242}
+    weight: 1
+  - pos: {x: -0.5138048, y: -2.251125, z: 0.95105654}
+    weight: 1
+  - pos: {x: 0.7999296, y: -1.2305576, z: 4.1183443}
+    weight: 1
+  - pos: {x: 1.1909829, y: 0, z: 0.5877852}
+    weight: 1
+  - pos: {x: -0.025007725, y: 0.70099705, z: 1.577579}
+    weight: 1
+  - pos: {x: -0.26501864, y: 0.54742146, z: 0.5877852}
+    weight: 1
+  - pos: {x: -1.0730386, y: 0.51674795, z: 0.5877852}
+    weight: 1
+  - pos: {x: -1.0730386, y: -0.51674813, z: 0.5877852}
+    weight: 1
+  - pos: {x: -0.26501873, y: -1.1611224, z: 0.5877852}
+    weight: 1
+  - pos: {x: 0.918786, y: -0.9934194, z: 0.5877852}
+    weight: 1
+  - pos: {x: 1.190983, y: 0, z: -0.58778536}
+    weight: 1
+  - pos: {x: 0.7425658, y: 0.93114805, z: -0.58778536}
+    weight: 1
+  - pos: {x: -0.26501867, y: 1.1611226, z: -0.58778536}
+    weight: 1
+  - pos: {x: -1.0730387, y: 0.516748, z: -0.58778536}
+    weight: 1
+  - pos: {x: -1.0730386, y: -0.5167482, z: -0.58778536}
+    weight: 1
+  - pos: {x: -0.26501876, y: -1.1611226, z: -0.58778536}
+    weight: 1
+  - pos: {x: 0.74256605, y: -0.9311479, z: -0.58778536}
+    weight: 1
+  - pos: {x: 2.3090172, y: 0, z: -0.9510565}
+    weight: 1
+  - pos: {x: 1.4396486, y: 1.8052623, z: -0.9510565}
+    weight: 1
+  - pos: {x: -0.5138047, y: 2.2511253, z: -0.9510565}
+    weight: 1
+  - pos: {x: -2.0803525, y: 1.0018446, z: -0.9510565}
+    weight: 1
+  - pos: {x: -2.0803525, y: -1.001845, z: -0.9510565}
+    weight: 1
+  - pos: {x: -0.5138048, y: -2.2511253, z: -0.9510565}
+    weight: 1
+  - pos: {x: 1.4396492, y: -1.805262, z: -0.9510565}
+    weight: 1

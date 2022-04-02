@@ -19,34 +19,18 @@ namespace kmty.NURBS {
         public string BakeName => bakeName;
         protected NativeArray<Vector3> vtcs;
         public List<Vector3> segments { get; protected set; } = new List<Vector3>();
-        //protected Vector2Int prv_division;
 
         void Start() {
             Init();
-            //prv_division = division;
             for (int y = 0; y < data.count.y; y++)
-                for (int x = 0; x < data.count.x; x++) {
-                    var i = data.Convert(x, y);
-                    surface.UpdateCP(new Vector2Int(x, y), new CP(transform.position + data.cps[i].pos, data.cps[i].weight));
-                }
+            for (int x = 0; x < data.count.x; x++) {
+                var i = data.Convert(x, y);
+                surface.SetCP(new Vector2Int(x, y), new CP(transform.position + data.cps[i].pos, data.cps[i].weight));
+            }
             CreateMesh();
             UpdateSegments(data, transform.position);
         }
         
-        //void Update() {
-        //    if(prv_division != division) {
-        //        prv_division = division;
-        //        Init();
-        //        for (int y = 0; y < data.count.y; y++)
-        //            for (int x = 0; x < data.count.x; x++) {
-        //                var i = data.Convert(x, y);
-        //                surface.UpdateCP(new Vector2Int(x, y), new CP(transform.position + data.cps[i].pos, data.cps[i].weight));
-        //            }
-        //        CreateMesh();
-        //        UpdateSegments(data, transform.position);
-        //    }
-        //}
-
         void OnDestroy() {
             surface.Dispose();
             vtcs.Dispose();
@@ -148,7 +132,6 @@ namespace kmty.NURBS {
                 if (data.yloop) {
                     segments.Add(hpos + data.cps[data.Convert(x, data.count.y - 1)].pos);
                     segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
-                    //segments.Add(hpos + data.cps[data.Convert(data.count.x - x - 1, 0)].pos);
                 }
             }
             for (int y = 0; y < data.count.y; y++) {
