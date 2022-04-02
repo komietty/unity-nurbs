@@ -2,7 +2,7 @@
 
 namespace kmty.NURBS.Demo {
     [RequireComponent(typeof(SplineHandler))]
-    public class DemoSpline : MonoBehaviour {
+    public class Demo : MonoBehaviour {
         protected GameObject tracer;
         protected SplineHandler handler;
         [SerializeField] protected float value;

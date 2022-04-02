@@ -31,8 +31,8 @@ Shader "Custom/Demo"
         }
 
         void surf (Input IN, inout SurfaceOutputStandard o) {
-            //o.Albedo = _Color;
-            o.Albedo = IN.color;
+            o.Albedo = _Color;
+            //o.Albedo = IN.color;
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = 1;
