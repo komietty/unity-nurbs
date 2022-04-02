@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: DemoSurface
   m_EditorClassIdentifier: 
   order: 2
-  xtype: 1
+  xtype: 0
   ytype: 1
   size: {x: 4, y: 4}
   count: {x: 7, y: 5}
   cps:
-  - pos: {x: 3, y: 0, z: 0}
+  - pos: {x: 3.1500027, y: 0, z: 0}
     weight: 1
   - pos: {x: 1.8704693, y: 2.3454945, z: 0}
     weight: 1
@@ -30,11 +30,11 @@ MonoBehaviour:
     weight: 1
   - pos: {x: -0.667563, y: -2.9247837, z: 0}
     weight: 1
-  - pos: {x: 2.3317041, y: -2.345494, z: 1.8207502}
+  - pos: {x: 2.533284, y: -2.345494, z: 1.8207502}
     weight: 1
-  - pos: {x: 2.309017, y: 0, z: 0.95105654}
+  - pos: {x: 2.6947386, y: 0, z: 0.95105654}
     weight: 1
-  - pos: {x: 1.4396485, y: 1.8052622, z: 3.9871511}
+  - pos: {x: 1.106749, y: 1.8052622, z: 3.9871511}
     weight: 1
   - pos: {x: -0.5138047, y: 2.251125, z: 0.95105654}
     weight: 1
@@ -42,9 +42,9 @@ MonoBehaviour:
     weight: 1
   - pos: {x: -2.0803523, y: -1.001845, z: 3.4302242}
     weight: 1
-  - pos: {x: -0.5138048, y: -2.251125, z: 0.95105654}
+  - pos: {x: -0.5138048, y: -3.1648407, z: 0.95105654}
     weight: 1
-  - pos: {x: 0.7999296, y: -1.2305576, z: 4.1183443}
+  - pos: {x: 0.7999296, y: -2.105539, z: 4.1183443}
     weight: 1
   - pos: {x: 1.1909829, y: 0, z: 0.5877852}
     weight: 1
@@ -86,5 +86,5 @@ MonoBehaviour:
     weight: 1
   - pos: {x: -0.5138048, y: -2.2511253, z: -0.9510565}
     weight: 1
-  - pos: {x: 1.4396492, y: -1.805262, z: -0.9510565}
+  - pos: {x: 1.4396492, y: -3.6172028, z: -0.9510565}
     weight: 1

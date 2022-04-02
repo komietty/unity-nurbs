@@ -68,9 +68,12 @@ namespace kmty.NURBS {
 
         }
         public void SetCP(Vector2Int i, CP cp) {
+            var fx = xloop && i.x < order;
+            var fy = yloop && i.y < order;
             cps[idx(i.x, i.y)] = cp;
-            if (xloop && i.x < order) cps[idx(lx - order + i.x, i.y)] = cp;
-            if (yloop && i.y < order) cps[idx(i.x, ly - order + i.y)] = cp;
+            if (fx) cps[idx(lx - order + i.x, i.y)] = cp;
+            if (fy) cps[idx(i.x, ly - order + i.y)] = cp;
+            if (fx && fy) cps[idx(lx - order + i.x, ly - order + i.y)] = cp;
         }
 
         public bool IsAccessbile => cps.IsCreated;
