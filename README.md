@@ -18,11 +18,13 @@ By moving control points using unity built-in Handle UI, you can modify a mesh i
 ![img](Imgs/torus.png)
 
 ## Common
-As seen in the Demo all the data is stored in ScriptableObject. Other settings are very obvious but if you have some trouble or question feel free to make a issue.
+As seen in the Demo all the data is stored in ScriptableObject. Other settings are very obvious but if you have some trouble or question feel free to msg me or make a issue.
 
 ## TODO
-- [ ] Weight is not considered in derivatives of spline.
-- [ ] Sphere (S^2) option in surface is not available.
+- [ ] Weight support in derivatives of spline.
+- [ ] Derivatives in clamped spline.
+- [ ] Sphere (S^2) option in surface.
+- [ ] Enable FFD.
 
 ## Reference
 [Shape Interrogation for Computer Aided Design and Manufacturing, Nicholas M. PatrikalakisTakashi Maekawa, Splinger, 2002](https://link.springer.com/book/10.1007/978-3-642-04074-0)
