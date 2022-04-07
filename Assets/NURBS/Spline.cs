@@ -63,7 +63,6 @@ namespace kmty.NURBS {
             return t >= min && t <= max;
         }
 
-
         float BasisFunc(int j, int k, float t) {
             if (k == 0) { return (t >= knots[j] && t < knots[j + 1]) ? 1f : 0f; }
             else {

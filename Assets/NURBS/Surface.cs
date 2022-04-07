@@ -24,44 +24,13 @@ namespace kmty.NURBS {
             this.yloop = ytype == SplineType.Loop;
             this.xknotType = xtype == SplineType.Clamped ? KnotType.OpenUniform : KnotType.Uniform;
             this.yknotType = ytype == SplineType.Clamped ? KnotType.OpenUniform : KnotType.Uniform;
-
-            if (this.xloop && this.yloop) {
-                var arr = new CP[(lx + order) * ly];
-                for (int y = 0; y < ly; y++) {
-                    for (int x = 0; x < lx + order; x++) {
-                        var i1 = x % lx + y * lx;
-                        var i2 = x + y * (lx + order);
-                        arr[i2] = cps[i1];
-                    }
-                }
-                var lst = arr.ToList();
-                for (int i = 0; i < order; i++) {
-                    var row = new CP[lx + order];
-                    System.Array.Copy(arr, i * (lx + order), row, 0, lx + order);
-                    lst.AddRange(row);
-                }
-                SetData(lst.ToArray(), lx + order, ly + order);
-            } else if (this.yloop) {
-                var lst = cps.ToList();
-                for (int i = 0; i < order; i++) {
-                    var row = new CP[lx];
-                    System.Array.Copy(cps, i * lx, row, 0, lx);
-                    lst.AddRange(row);
-                }
-                SetData(lst.ToArray(), lx, ly + order);
-            } else if (this.xloop) {
-                var arr = new CP[(lx + order) * ly];
-                for (int y = 0; y < ly; y++) {
-                    for (int x = 0; x < lx + order; x++) {
-                        var i1 = x % lx + y * lx;
-                        var i2 = x + y * (lx + order);
-                        arr[i2] = cps[i1];
-                    }
-                }
-                SetData(arr, lx + order, ly);
-            } else {
-                SetData(cps, lx, ly);
-            }
+            if (xloop && yloop) {
+                var xlooped = GenXLoop(cps, lx, ly);
+                var ylooped = GenYLoop(xlooped, lx, ly);
+                SetData(ylooped, lx + order, ly + order);
+            } else if (yloop) { SetData(GenYLoop(cps, lx, ly), lx, ly + order);
+            } else if (xloop) { SetData(GenXLoop(cps, lx, ly), lx + order, ly);
+            } else            { SetData(cps, lx, ly); }
         }
 
         public bool GetCurve(float normTx, float normTy, out Vector3 v){
@@ -82,6 +51,26 @@ namespace kmty.NURBS {
             if (fx && fy) cps[idx(lx - order + i.x, ly - order + i.y)] = cp;
         }
 
+        CP[] GenXLoop(CP[] cps, int lx, int ly) {
+            var arr = new CP[(lx + order) * ly];
+            for (int y = 0; y < ly; y++) 
+            for (int x = 0; x < lx + order; x++) {
+                var i1 = x % lx + y * lx;
+                var i2 = x + y * (lx + order);
+                arr[i2] = cps[i1];
+            }
+            return arr;
+        }
+
+        CP[] GenYLoop(CP[] cps, int lx, int ly) {
+            var lst = cps.ToList();
+            for (int i = 0; i < order; i++) {
+                var row = new CP[lx + order];
+                System.Array.Copy(cps, i * (lx + order), row, 0, lx + order);
+                lst.AddRange(row);
+            }
+            return lst.ToArray();
+        }
 
         void SetData(CP[] cps, int lx, int ly) {
             this.lx = lx;
