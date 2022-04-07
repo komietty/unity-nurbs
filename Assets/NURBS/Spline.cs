@@ -10,6 +10,7 @@ namespace kmty.NURBS {
         float min => knots[order];
         float max => knots[cps.Length];
         float[] knots;
+        float shift(float t) => min + (max - min) * t;
 
         public Spline(CP[] cps, int order, SplineType t) {
             this.order    = order;
@@ -62,7 +63,6 @@ namespace kmty.NURBS {
             return t >= min && t <= max;
         }
 
-        float shift(float t) => min + (max - min) * t;
 
         float BasisFunc(int j, int k, float t) {
             if (k == 0) { return (t >= knots[j] && t < knots[j + 1]) ? 1f : 0f; }
@@ -88,7 +88,7 @@ namespace kmty.NURBS {
         }
 
         // IN PROGRESS:
-        // To calcurate derivatives for openknot vector, hodograph seems to be needed.
+        // To calcurate derivatives for openuniform knot vector, hodograph seems to be needed.
         // https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-derv.html
 
         public Spline hodograph {get; set;}

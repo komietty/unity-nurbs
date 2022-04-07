@@ -13,7 +13,7 @@ namespace kmty.NURBS {
         [SerializeField] protected string bakePath = "Assets/Bakedmesh";
         [SerializeField] protected string bakeName = "bakedMesh";
         public SurfaceCpsData Data { get => data; set { data = value; } }
-        public Surface surface { get; protected set; }
+        public Surface surf { get; protected set; }
         public Mesh mesh { get; private set; }
         public string BakePath => bakePath;
         public string BakeName => bakeName;
@@ -25,20 +25,20 @@ namespace kmty.NURBS {
             for (int y = 0; y < data.count.y; y++)
             for (int x = 0; x < data.count.x; x++) {
                 var i = data.Convert(x, y);
-                surface.SetCP(new Vector2Int(x, y), new CP(transform.position + data.cps[i].pos, data.cps[i].weight));
+                surf.SetCP(new Vector2Int(x, y), new CP(transform.position + data.cps[i].pos, data.cps[i].weight));
             }
             CreateMesh();
             UpdateSegments(data, transform.position);
         }
         
         void OnDestroy() {
-            surface.Dispose();
+            surf.Dispose();
             vtcs.Dispose();
         }
 
         public void Init() {
-            if (surface != null) surface.Dispose();
-            surface = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xtype, data.ytype);
+            if (surf != null) surf.Dispose();
+            surf = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xtype, data.ytype);
         }
 
         void CreateMesh() {
@@ -54,9 +54,7 @@ namespace kmty.NURBS {
             for (int iy = 0; iy < ly; iy++)
             for (int ix = 0; ix < lx; ix++) {
                 int i = ix + iy * lx;
-                float _x = surface.min.x + ix * dx * (surface.max.x - surface.min.x);
-                float _y = surface.min.y + iy * dy * (surface.max.y - surface.min.y);
-                var f = surface.GetCurve(_x, _y, out Vector3 v);
+                var f = surf.GetCurve(ix * dx, iy * dy, out Vector3 v);
                 if(!f)  Debug.LogWarning("surface range is somehow wrong");
                 vtcs[i] = v;
                 if (iy < division.y && ix < division.x) {
@@ -96,19 +94,19 @@ namespace kmty.NURBS {
                 var iy = (id / l) * invdiv.y;
                 float _x = min.x + ix * (max.x - min.x);
                 float _y = min.y + iy * (max.y - min.y);
-                vtcs[id] = NURBSSurface.GetCurve(cps, _x, _y, order, cpslen.x, cpslen.y, xknot, yknot);
+                vtcs[id] = SurfaceUtil.GetCurve(cps, _x, _y, order, cpslen.x, cpslen.y, xknot, yknot);
             }
         }
 
         public void UpdateMesh() {
             var job = new UpdateMeshJob {
                 vtcs = vtcs,
-                cps = surface.CPs,
+                cps = surf.CPs,
                 division = division,
                 invdiv = new Vector2(1f / division.x, 1f / division.y),
-                cpslen = new Vector2Int(surface.lx, surface.ly),
-                min = surface.min,
-                max = surface.max,
+                cpslen = new Vector2Int(surf.lx, surf.ly),
+                min = surf.min,
+                max = surf.max,
                 order = data.order,
                 xknot = data.xknot,
                 yknot = data.yknot,

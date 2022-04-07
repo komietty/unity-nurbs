@@ -18,7 +18,7 @@ MonoBehaviour:
   size: {x: 4, y: 4}
   count: {x: 7, y: 5}
   cps:
-  - pos: {x: 4.9419203, y: 1.1445372, z: 2.922308}
+  - pos: {x: 5.0614758, y: 0, z: 1.8145633}
     weight: 1
   - pos: {x: 1.8704693, y: 2.3454945, z: 0}
     weight: 1

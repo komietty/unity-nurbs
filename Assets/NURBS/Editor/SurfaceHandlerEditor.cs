@@ -19,7 +19,6 @@ namespace kmty.NURBS {
             if (GUILayout.Button("Bake Mesh")) {
                 var path = $"{handler.BakePath}/{handler.BakeName}.asset";
                 CreateOrUpdate(Weld(handler.mesh), path);
-                //CreateOrUpdate(handler.mesh, path);
             }
         }
 
@@ -39,7 +38,7 @@ namespace kmty.NURBS {
             if (Application.isPlaying) {
                 for (int i = 0; i < cps.Count; i++) {
                     var cp = cps[i];
-                    handler.surface.SetCP(data.Convert(i), new CP(hpos + cp.pos, cp.weight));
+                    handler.surf.SetCP(data.Convert(i), new CP(hpos + cp.pos, cp.weight));
                 }
             }
 

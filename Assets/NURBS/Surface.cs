@@ -13,6 +13,10 @@ namespace kmty.NURBS {
         public bool yloop { get; protected set; }
         public KnotType xknotType { get; protected set; }
         public KnotType yknotType { get; protected set; }
+        public void Dispose() => cps.Dispose();
+        float shiftx(float t) => min.x + (max.x - min.x) * t;
+        float shifty(float t) => min.y + (max.y - min.y) * t;
+        int idx(int x, int y) => x + y * this.lx;
 
         public Surface(CP[] cps, int order, int lx, int ly, SplineType xtype, SplineType ytype) {
             this.order = order;
@@ -60,10 +64,12 @@ namespace kmty.NURBS {
             }
         }
 
-        public bool GetCurve(float tx, float ty, out Vector3 v){
+        public bool GetCurve(float normTx, float normTy, out Vector3 v){
+            var tx = shiftx(normTx);
+            var ty = shifty(normTy);
             var fx = tx >= min.x && tx <= max.x;
             var fy = ty >= min.y && ty <= max.y;
-            v = NURBSSurface.GetCurve(cps, tx, ty, order, lx, ly, xknotType, yknotType);
+            v = SurfaceUtil.GetCurve(cps, tx, ty, order, lx, ly, xknotType, yknotType);
             return fx && fy;
 
         }
@@ -76,9 +82,7 @@ namespace kmty.NURBS {
             if (fx && fy) cps[idx(lx - order + i.x, ly - order + i.y)] = cp;
         }
 
-        public bool IsAccessbile => cps.IsCreated;
-        public void Dispose() => cps.Dispose();
-        int idx(int x, int y) => x + y * lx;
+
         void SetData(CP[] cps, int lx, int ly) {
             this.lx = lx;
             this.ly = ly;
@@ -86,13 +90,13 @@ namespace kmty.NURBS {
         }
     }
 
-    public static class NURBSSurface {
+    public static class SurfaceUtil {
         public static Vector3 GetCurve(NativeArray<CP> cps, float tx, float ty, int o, int lx, int ly, KnotType kx, KnotType ky) {
             var f = Vector3.zero;
             var d = 1e-9f;
             for (int y = 0; y < ly; y++) {
                 for (int x = 0; x < lx; x++) {
-                    var b = BF(x, o, o, tx, lx, kx) * BF(y, o, o, ty, ly, ky);
+                    var b = BasisFunc(x, o, o, tx, lx, kx) * BasisFunc(y, o, o, ty, ly, ky);
                     var c = cps[x + y * lx];
                     f += c.pos * b * c.weight;
                     d += b * c.weight;
@@ -101,15 +105,16 @@ namespace kmty.NURBS {
             return f / d;
         }
 
-        static float KV(int j, int o, int l, KnotType t) => Shared.KnotVector(j, o, l, t);
-        static float BF(int j, int k, int o, float t, int l, KnotType kt) {
-            if (k == 0) { return (t >= KV(j, o, l, kt) && t < KV(j + 1, o, l, kt)) ? 1 : 0; }
+        static float BasisFunc(int j, int k, int o, float t, int l, KnotType kt) {
+            if (k == 0) {
+                return (t >= Shared.KnotVector(j, o, l, kt) && t < Shared.KnotVector(j + 1, o, l, kt)) ? 1 : 0;
+            }
             else {
-                var d1 = KV(j + k, o, l, kt) - KV(j, o, l, kt);
-                var d2 = KV(j + k + 1, o, l, kt) - KV(j + 1, o, l, kt);
-                var c1 = d1 != 0 ? (t - KV(j, o, l, kt)) / d1 : 0;
-                var c2 = d2 != 0 ? (KV(j + k + 1, o, l, kt) - t) / d2 : 0;
-                return c1 * BF(j, k - 1, o, t, l, kt) + c2 * BF(j + 1, k - 1, o, t, l, kt);
+                var d1 = Shared.KnotVector(j + k, o, l, kt) - Shared.KnotVector(j, o, l, kt);
+                var d2 = Shared.KnotVector(j + k + 1, o, l, kt) - Shared.KnotVector(j + 1, o, l, kt);
+                var c1 = d1 != 0 ? (t - Shared.KnotVector(j, o, l, kt)) / d1 : 0;
+                var c2 = d2 != 0 ? (Shared.KnotVector(j + k + 1, o, l, kt) - t) / d2 : 0;
+                return c1 * BasisFunc(j, k - 1, o, t, l, kt) + c2 * BasisFunc(j + 1, k - 1, o, t, l, kt);
             }
         }
     }
