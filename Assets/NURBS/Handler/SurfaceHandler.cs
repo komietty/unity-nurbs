@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Jobs;
@@ -54,7 +53,9 @@ namespace kmty.NURBS {
             for (int iy = 0; iy < ly; iy++)
             for (int ix = 0; ix < lx; ix++) {
                 int i = ix + iy * lx;
-                var f = surf.GetCurve(ix * dx, iy * dy, out Vector3 v);
+                var x = Mathf.Min(ix * dx, 1f - 1e-5f);
+                var y = Mathf.Min(iy * dy, 1f - 1e-5f);
+                var f = surf.GetCurve(x, y, out Vector3 v);
                 if(!f)  Debug.LogWarning("surface range is somehow wrong");
                 vtcs[i] = v;
                 if (iy < division.y && ix < division.x) {
