@@ -18,6 +18,7 @@ namespace kmty.NURBS {
         public string BakeName => bakeName;
         protected NativeArray<Vector3> vtcs;
         public List<Vector3> segments { get; protected set; } = new List<Vector3>();
+        static readonly float EPSILON = 1e-5f;
 
         void Start() {
             Init();
@@ -53,8 +54,8 @@ namespace kmty.NURBS {
             for (int iy = 0; iy < ly; iy++)
             for (int ix = 0; ix < lx; ix++) {
                 int i = ix + iy * lx;
-                var x = Mathf.Min(ix * dx, 1f - 1e-5f);
-                var y = Mathf.Min(iy * dy, 1f - 1e-5f);
+                var x = Mathf.Min(ix * dx, 1f - EPSILON);
+                var y = Mathf.Min(iy * dy, 1f - EPSILON);
                 var f = surf.GetCurve(x, y, out Vector3 v);
                 if(!f)  Debug.LogWarning("surface range is somehow wrong");
                 vtcs[i] = v;
@@ -93,8 +94,8 @@ namespace kmty.NURBS {
                 var l = division.x + 1;
                 var ix = (id % l) * invdiv.x;
                 var iy = (id / l) * invdiv.y;
-                float _x = min.x + ix * (max.x - min.x);
-                float _y = min.y + iy * (max.y - min.y);
+                float _x = Mathf.Min(min.x + ix * (max.x - min.x), 1 - EPSILON);
+                float _y = Mathf.Min(min.y + iy * (max.y - min.y), 1 - EPSILON);
                 vtcs[id] = SurfaceUtil.GetCurve(cps, _x, _y, order, cpslen.x, cpslen.y, xknot, yknot);
             }
         }
