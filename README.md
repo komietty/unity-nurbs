@@ -2,7 +2,7 @@
 
 NURBS spline and surface module for Unity.
 
-## Spline
+### Spline
 
 <img src="Imgs/dv_1.png" width="50%"><img src="Imgs/dv_2.png" width="50%">
 
@@ -11,7 +11,7 @@ Spline module offers **Standard, Loop, Clamped** options.
 `GetCurve` function converts [0, 1) -> position on curve in whichever mode. First & second devivatives are available from `GetFirstDerivative` and `GetSecondDerivative` as they are shown above, are currently active only in Standard or Loop mode. 
 
 
-## Surface
+### Surface
 
 ![img](Imgs/torus.png)
 
