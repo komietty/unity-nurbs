@@ -48,7 +48,7 @@ namespace kmty.NURBS {
             for(var i = 0; i < cps.Count; i++) {
                 var wp = handler.transform.TransformPoint(cps[i].pos);
                 var sz = HandleUtility.GetHandleSize(wp) * 0.1f;
-                if (Handles.Button(wp, Quaternion.identity, sz, sz, Handles.CubeHandleCap)) {
+                if (Handles.Button(wp, Quaternion.identity, sz * 0.6f, sz, Handles.SphereHandleCap)) {
                     selectedId = i;
                     Repaint();
                 }
