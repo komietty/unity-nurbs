@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.Rendering;
 
 namespace kmty.NURBS {
     [CustomEditor(typeof(SurfaceHandler))]
@@ -24,7 +25,6 @@ namespace kmty.NURBS {
 
         void OnSceneGUI() {
             var cache = Handles.zTest;
-            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
             var handler = (SurfaceHandler)target;
             var data = handler.Data;
             var hpos = handler.transform.position;
@@ -44,6 +44,7 @@ namespace kmty.NURBS {
                 }
             }
 
+            Handles.zTest = CompareFunction.Less;
             for(var i = 0; i < cps.Count; i++) {
                 var wp = handler.transform.TransformPoint(cps[i].pos);
                 var sz = HandleUtility.GetHandleSize(wp) * 0.1f;
@@ -53,6 +54,10 @@ namespace kmty.NURBS {
                 }
             }
 
+            Handles.color = Color.cyan;
+            Handles.DrawLines(handler.segments.ToArray());
+
+            Handles.zTest = CompareFunction.Always;
             if (selectedId > -1) {
                 var cp = cps[selectedId];
                 var wp = handler.transform.TransformPoint(cp.pos);
@@ -66,8 +71,6 @@ namespace kmty.NURBS {
                     EditorUtility.SetDirty(handler.Data);
                 }
             }
-            Handles.color = Color.gray;
-            Handles.DrawLines(handler.segments.ToArray());
             Handles.zTest = cache;
         }
 
