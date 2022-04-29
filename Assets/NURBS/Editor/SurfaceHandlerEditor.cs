@@ -23,6 +23,8 @@ namespace kmty.NURBS {
         }
 
         void OnSceneGUI() {
+            var cache = Handles.zTest;
+            Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
             var handler = (SurfaceHandler)target;
             var data = handler.Data;
             var hpos = handler.transform.position;
@@ -66,6 +68,7 @@ namespace kmty.NURBS {
             }
             Handles.color = Color.gray;
             Handles.DrawLines(handler.segments.ToArray());
+            Handles.zTest = cache;
         }
 
         void CreateOrUpdate(Object altAsset, string assetPath) {
