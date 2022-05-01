@@ -30,11 +30,11 @@ namespace kmty.NURBS {
             var hpos = handler.transform.position;
             if (handler.segments.Count == 0) handler.UpdateSegments(data, hpos);
             var cps = handler.Data.cps;
-            if (handler.Data.order != order || handler.Data.xloop != xloop || handler.Data.yloop != yloop) {
+            if (handler.Data.order != order || handler.Data.GetXLoop() != xloop || handler.Data.GetYLoop() != yloop) {
                 if (Application.isPlaying) handler.Init();
                 order = data.order;
-                xloop = data.xloop;
-                yloop = data.yloop;
+                xloop = data.GetXLoop();
+                yloop = data.GetYLoop();
             };
 
             if (Application.isPlaying) {

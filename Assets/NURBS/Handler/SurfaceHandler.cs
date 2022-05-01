@@ -8,7 +8,6 @@ namespace kmty.NURBS {
     public class SurfaceHandler : MonoBehaviour {
         [SerializeField] protected SurfaceCpsData data;
         [SerializeField] protected Material mat;
-        [SerializeField] protected Vector2Int division;
         [SerializeField] protected string bakePath = "Assets/Bakedmesh";
         [SerializeField] protected string bakeName = "bakedMesh";
         public SurfaceCpsData Data { get => data; set { data = value; } }
@@ -38,19 +37,19 @@ namespace kmty.NURBS {
 
         public void Init() {
             if (surf != null) surf.Dispose();
-            surf = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.xtype, data.ytype);
+            surf = new Surface(data.cps.ToArray(), data.order, data.count.x, data.count.y, data.GetXtype(), data.GetYtype());
         }
 
         void CreateMesh() {
             mesh = new Mesh();
-            vtcs = new NativeArray<Vector3>((division.x + 1) * (division.y + 1), Allocator.Persistent);
+            vtcs = new NativeArray<Vector3>((data.division.x + 1) * (data.division.y + 1), Allocator.Persistent);
             var fltr = gameObject.AddComponent<MeshFilter>();
             var rndr = gameObject.AddComponent<MeshRenderer>();
             var idcs = new List<int>();
-            var lx = division.x + 1;
-            var ly = division.y + 1;
-            var dx = 1f / division.x;
-            var dy = 1f / division.y;
+            var lx = data.division.x + 1;
+            var ly = data.division.y + 1;
+            var dx = 1f / data.division.x;
+            var dy = 1f / data.division.y;
             for (int iy = 0; iy < ly; iy++)
             for (int ix = 0; ix < lx; ix++) {
                 int i = ix + iy * lx;
@@ -59,7 +58,7 @@ namespace kmty.NURBS {
                 var f = surf.GetCurve(x, y, out Vector3 v);
                 if(!f)  Debug.LogWarning("surface range is somehow wrong");
                 vtcs[i] = v;
-                if (iy < division.y && ix < division.x) {
+                if (iy < data.division.y && ix < data.division.x) {
                     idcs.Add(i);
                     idcs.Add(i + 1);
                     idcs.Add(i + lx);
@@ -104,14 +103,14 @@ namespace kmty.NURBS {
             var job = new UpdateMeshJob {
                 vtcs = vtcs,
                 cps = surf.CPs,
-                division = division,
-                invdiv = new Vector2(1f / division.x, 1f / division.y),
+                division = data.division,
+                invdiv = new Vector2(1f / data.division.x, 1f / data.division.y),
                 cpslen = new Vector2Int(surf.lx, surf.ly),
                 min = surf.min,
                 max = surf.max,
                 order = data.order,
-                xknot = data.xknot,
-                yknot = data.yknot,
+                xknot = data.GetXKnot(),
+                yknot = data.GetYKnot(),
             };
             job.Schedule(vtcs.Length, 0).Complete();
 
@@ -129,7 +128,7 @@ namespace kmty.NURBS {
                     segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
                     segments.Add(hpos + data.cps[data.Convert(x, y + 1)].pos);
                 }
-                if (data.yloop) {
+                if (data.GetYLoop()) {
                     segments.Add(hpos + data.cps[data.Convert(x, data.count.y - 1)].pos);
                     segments.Add(hpos + data.cps[data.Convert(x, 0)].pos);
                 }
@@ -139,7 +138,7 @@ namespace kmty.NURBS {
                     segments.Add(hpos + data.cps[data.Convert(x, y)].pos);
                     segments.Add(hpos + data.cps[data.Convert(x + 1, y)].pos);
                 }
-                if(data.xloop){
+                if(data.GetXLoop()){
                     segments.Add(hpos + data.cps[data.Convert(data.count.x - 1, y)].pos);
                     segments.Add(hpos + data.cps[data.Convert(0, y)].pos);
                 }

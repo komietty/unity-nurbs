@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 057a99b3b35994710bee22c672cbf172, type: 3}
+  m_Name: SphereData
+  m_EditorClassIdentifier: 
+  order: 3
+  size: {x: 2, y: 2}
+  division: {x: 30, y: 30}
+  count: {x: 4, y: 5}
+  cps:
+  - pos: {x: 0, y: 0, z: 0.5}
+    weight: 1
+  - pos: {x: 0, y: 0, z: 0.5}
+    weight: 1
+  - pos: {x: 0, y: 0, z: 0.5}
+    weight: 1
+  - pos: {x: 0, y: 0, z: 0.5}
+    weight: 1
+  - pos: {x: 0.56440616, y: 0, z: 0.5}
+    weight: 1
+  - pos: {x: -0.00000004371139, y: 0.57802397, z: 0.5}
+    weight: 1
+  - pos: {x: -0.5223425, y: -0.00000008742278, z: 0.5}
+    weight: 1
+  - pos: {x: 0.000000011924881, y: -0.5600175, z: 0.5}
+    weight: 1
+  - pos: {x: 1, y: 0, z: 1}
+    weight: 1
+  - pos: {x: -0.00000004371139, y: 1, z: 1}
+    weight: 1
+  - pos: {x: -1, y: -0.00000008742278, z: 1}
+    weight: 1
+  - pos: {x: 0.000000011924881, y: -1.0002415, z: 1}
+    weight: 1
+  - pos: {x: 0.48432207, y: 0, z: 1.5}
+    weight: 1
+  - pos: {x: -0.00000004371139, y: 0.57831657, z: 1.5}
+    weight: 1
+  - pos: {x: -0.52592075, y: -0.00000008742278, z: 1.5}
+    weight: 1
+  - pos: {x: 0.000000011924881, y: -0.55804193, z: 1.5}
+    weight: 1
+  - pos: {x: 0, y: 0, z: 1.5}
+    weight: 1
+  - pos: {x: 0, y: 0, z: 1.5}
+    weight: 1
+  - pos: {x: 0, y: 0, z: 1.5}
+    weight: 1
+  - pos: {x: 0, y: 0, z: 1.5}
+    weight: 1

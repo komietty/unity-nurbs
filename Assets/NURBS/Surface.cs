@@ -9,6 +9,7 @@ namespace kmty.NURBS {
         public Vector2 min => new Vector2(Shared.KnotVector(order, order, lx, xknotType), Shared.KnotVector(order, order, ly, yknotType));
         public Vector2 max => new Vector2(Shared.KnotVector(lx,    order, lx, xknotType), Shared.KnotVector(ly,    order, ly, yknotType));
         public int order, lx, ly;
+        public bool close { get; protected set; } = false;
         public bool xloop { get; protected set; }
         public bool yloop { get; protected set; }
         public KnotType xknotType { get; protected set; }
@@ -24,6 +25,18 @@ namespace kmty.NURBS {
             this.yloop = ytype == SplineType.Loop;
             this.xknotType = xtype == SplineType.Clamped ? KnotType.OpenUniform : KnotType.Uniform;
             this.yknotType = ytype == SplineType.Clamped ? KnotType.OpenUniform : KnotType.Uniform;
+            if (close) {
+                var xlooped = GenXLoop(cps, lx, ly);
+                var center1 = Vector3.zero;
+                var center2 = Vector3.zero;
+                for (var i = 0; i < lx; i++) center1 += cps[i + lx].pos;
+                for (var i = 0; i < lx; i++) center2 += cps[i + (ly - 2) * lx].pos;
+                center1 /= lx;
+                center2 /= lx;
+                for (var i = 0; i < lx; i++) cps[i].pos = center1;
+                for (var i = 0; i < lx; i++) cps[i + (ly - 1) * lx].pos = center2;
+            }
+
             if (xloop && yloop) {
                 var xlooped = GenXLoop(cps, lx, ly);
                 var ylooped = GenYLoop(xlooped, lx, ly);
@@ -43,6 +56,7 @@ namespace kmty.NURBS {
 
         }
         public void SetCP(Vector2Int i, CP cp) {
+            if (close) { return; }
             var fx = xloop && i.x < order;
             var fy = yloop && i.y < order;
             cps[idx(i.x, i.y)] = cp;

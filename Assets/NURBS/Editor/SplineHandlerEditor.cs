@@ -28,7 +28,7 @@ namespace kmty.NURBS {
                 var cp = cps[i];
                 var wp = hdl.transform.TransformPoint(cp.pos);
                 var sz = HandleUtility.GetHandleSize(wp) * 0.1f;
-                if (Handles.Button(wp, Quaternion.identity, sz, sz, Handles.CubeHandleCap)) {
+                if (Handles.Button(wp, Quaternion.identity, sz, sz, Handles.SphereHandleCap)) {
                     selectedId = i;
                     Repaint();
                 }
@@ -58,7 +58,7 @@ namespace kmty.NURBS {
         }
 
         void Draw(Spline s, SplineHandler h) {
-            var seg = 0.005f;
+            var seg = 0.003f;
             if (h.showSegments) {
                 Handles.color = Color.grey;
                 for (int i = 0; i < s.cps.Length - 1; i++)
