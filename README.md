@@ -1,6 +1,6 @@
 # untiy-nurbs
 
-NURBS spline and surface module for Unity.
+NURBS spline and surface module for Unity. Both spline/surface are modifiable in runtime.
 
 ### Spline
 
