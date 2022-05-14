@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using System.Collections.Generic;
+using UnityEngine.Rendering;
 
 namespace kmty.NURBS {
     [CustomEditor(typeof(SplineHandler))]
     public class SplineHandlerEditor : Editor {
-        Spline spline;
-        int selectedId = -1;
-        int length;
+        protected Spline spline;
+        protected int length;
+        protected List<int> idcs = new List<int>();
 
         void OnEnable() {
             var hdl = (SplineHandler)target;
@@ -15,38 +17,57 @@ namespace kmty.NURBS {
         }
 
         void OnSceneGUI() {
-            var hdl = (SplineHandler)target;
-            var cps = hdl.Data.cps;
-            if (cps.Count != length) Init(hdl.Data);
+            var h = (SplineHandler)target;
+            var cps = h.Data.cps;
+            var e = Event.current.type;
+            var q = Quaternion.identity;
+            var selected = false;
+            if (cps.Count != length) Init(h.Data);
+
+            Handles.zTest = CompareFunction.Less;
+            Handles.color = Color.white;
 
             for (int i = 0; i < length; i++) {
-                var c = hdl.Data.cps[i];
-                spline.SetCP(i, new CP(hdl.transform.position + c.pos, c.weight));
+                var c = h.Data.cps[i];
+                spline.SetCP(i, new CP(h.transform.position + c.pos, c.weight));
             }
 
             for(var i = 0; i < cps.Count; i++) {
-                var cp = cps[i];
-                var wp = hdl.transform.TransformPoint(cp.pos);
-                var sz = HandleUtility.GetHandleSize(wp) * 0.1f;
-                if (Handles.Button(wp, Quaternion.identity, sz, sz, Handles.SphereHandleCap)) {
-                    selectedId = i;
+                var w = h.transform.TransformPoint(cps[i].pos);
+                var s = Mathf.Min(HandleUtility.GetHandleSize(w) * 0.1f, 0.03f);
+                if (Handles.Button(w, q, s, s, Handles.SphereHandleCap)) {
+                    idcs.Add(i);
+                    selected = true;
                     Repaint();
                 }
             }
 
-            if (selectedId > -1) {
-                var cp = cps[selectedId];
-                var wp = hdl.transform.TransformPoint(cp.pos);
+            if (e == EventType.MouseUp && !selected) idcs.Clear();
+            Handles.zTest = CompareFunction.Always;
+            Handles.color = Color.HSVToRGB(30f / 360, 1, 1);
+
+            if (idcs.Count > 0) {
+                var sum = Vector3.zero;
+                foreach(var i in idcs){
+                    var w = h.transform.TransformPoint(cps[i].pos);
+                    var s = Mathf.Min(HandleUtility.GetHandleSize(w) * 0.1f, 0.03f);
+                    sum += w;
+                    Handles.SphereHandleCap(0, w, q, s, Event.current.type);
+                }
                 EditorGUI.BeginChangeCheck();
-                var p = Handles.DoPositionHandle(wp, Quaternion.identity);
+                var d = sum / idcs.Count;
+                var p = Handles.DoPositionHandle(d, q);
                 if (EditorGUI.EndChangeCheck()) {
-                    cp.pos = hdl.transform.InverseTransformPoint(p);
-                    cps[selectedId] = cp;
-                    EditorUtility.SetDirty(hdl.Data);
+                    foreach (var i in idcs) {
+                        var c = cps[i];
+                        c.pos += h.transform.InverseTransformPoint(p - d);
+                        cps[i] = c;
+                    }
+                    EditorUtility.SetDirty(h.Data);
                 }
             }
 
-            Draw(spline, hdl);
+            Draw(spline, h);
         }
 
         void Init(SplineCpsData data) {

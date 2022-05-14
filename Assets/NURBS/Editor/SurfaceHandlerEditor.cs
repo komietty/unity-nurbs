@@ -2,36 +2,39 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
 
 namespace kmty.NURBS {
     [CustomEditor(typeof(SurfaceHandler))]
     public class SurfaceHandlerEditor : Editor {
-        protected int selectedId = -1;
         protected int order;
         protected bool xloop;
         protected bool yloop;
-        protected SurfaceHandler handler => (SurfaceHandler)target;
-        protected Vector3 hpos => handler.transform.position;
-        protected SurfaceCpsData data => handler.Data;
+        protected List<int> idcs = new List<int>();
 
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
             EditorGUILayout.Space(1);
+            var h = (SurfaceHandler)target;
             if (GUILayout.Button("Bake Mesh")) {
-                var path = $"{handler.BakePath}/{handler.BakeName}.asset";
-                CreateOrUpdate(Weld(handler.mesh), path);
+                var path = $"{h.BakePath}/{h.BakeName}.asset";
+                CreateOrUpdate(Weld(h.mesh), path);
             }
         }
 
         void OnSceneGUI() {
             var cache = Handles.zTest;
-            var handler = (SurfaceHandler)target;
-            var data = handler.Data;
-            var hpos = handler.transform.position;
-            if (handler.segments.Count == 0) handler.UpdateSegments(data, hpos);
-            var cps = handler.Data.cps;
-            if (handler.Data.order != order || handler.Data.GetXLoop() != xloop || handler.Data.GetYLoop() != yloop) {
-                if (Application.isPlaying) handler.Init();
+
+            var h = (SurfaceHandler)target;
+            var e = Event.current.type;
+            var q = Quaternion.identity;
+            var selected = false;
+            var data = h.Data;
+            var cps  = data.cps;
+            if (h.segments.Count == 0) h.UpdateSegments(data, h.transform.position);
+
+            if (data.order != order || data.GetXLoop() != xloop || data.GetYLoop() != yloop) {
+                if (Application.isPlaying) h.Init();
                 order = data.order;
                 xloop = data.GetXLoop();
                 yloop = data.GetYLoop();
@@ -40,37 +43,52 @@ namespace kmty.NURBS {
             if (Application.isPlaying) {
                 for (int i = 0; i < cps.Count; i++) {
                     var cp = cps[i];
-                    handler.surf.SetCP(data.Convert(i), new CP(hpos + cp.pos, cp.weight));
+                    h.surf.SetCP(data.Convert(i), new CP(h.transform.position + cp.pos, cp.weight));
                 }
             }
 
             Handles.zTest = CompareFunction.Less;
+            Handles.color = Color.cyan;
+            Handles.DrawLines(h.segments.ToArray());
+            Handles.color = Color.white;
+
             for(var i = 0; i < cps.Count; i++) {
-                var wp = handler.transform.TransformPoint(cps[i].pos);
-                var sz = HandleUtility.GetHandleSize(wp) * 0.1f;
-                if (Handles.Button(wp, Quaternion.identity, sz * 0.6f, sz, Handles.SphereHandleCap)) {
-                    selectedId = i;
+                var w = h.transform.TransformPoint(cps[i].pos);
+                var s = Mathf.Min(HandleUtility.GetHandleSize(w) * 0.1f, 0.1f);
+                if (Handles.Button(w, q, s, s, Handles.SphereHandleCap)) {
+                    idcs.Add(i);
+                    selected = true;
                     Repaint();
                 }
             }
 
-            Handles.color = Color.cyan;
-            Handles.DrawLines(handler.segments.ToArray());
-
+            if (e == EventType.MouseUp && !selected) idcs.Clear();
             Handles.zTest = CompareFunction.Always;
-            if (selectedId > -1) {
-                var cp = cps[selectedId];
-                var wp = handler.transform.TransformPoint(cp.pos);
+            Handles.color = Color.HSVToRGB(30f / 360, 1, 1);
+
+            if (idcs.Count > 0) {
+                var sum = Vector3.zero;
+                foreach (var i in idcs) {
+                    var w = h.transform.TransformPoint(cps[i].pos);
+                    var s = Mathf.Min(HandleUtility.GetHandleSize(w) * 0.1f, 0.1f);
+                    sum += w;
+                    Handles.SphereHandleCap(0, w, q, s, Event.current.type);
+                }
                 EditorGUI.BeginChangeCheck();
-                var pos = Handles.DoPositionHandle(wp, Quaternion.identity);
+                var d = sum / idcs.Count;
+                var p = Handles.DoPositionHandle(d, q);
                 if (EditorGUI.EndChangeCheck()) {
-                    cp.pos = handler.transform.InverseTransformPoint(pos);
-                    cps[selectedId] = cp;
-                    if (Application.isPlaying) handler.UpdateMesh();
-                    handler.UpdateSegments(data, hpos);
-                    EditorUtility.SetDirty(handler.Data);
+                    foreach (var i in idcs) {
+                        var c = cps[i];
+                        c.pos += h.transform.InverseTransformPoint(p - d);
+                        cps[i] = c;
+                    }
+                    EditorUtility.SetDirty(h.Data);
                 }
             }
+
+            if (Application.isPlaying) h.UpdateMesh();
+            h.UpdateSegments(data, h.transform.position);
             Handles.zTest = cache;
         }
 

@@ -187,7 +187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ce1ce0c55783cd4c956cfa36ac56a5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: ded1d3d5a96404040bf156d0cfee027f, type: 2}
+  data: {fileID: 11400000, guid: a1a1b12cccbbe41d38db6e4c70b15a25, type: 2}
   mat: {fileID: 2100000, guid: 2ea40c5782e83420b95c2b1c6de04ad1, type: 2}
   bakePath: Assets/Demo/Bakedmesh
   bakeName: bakedMesh
