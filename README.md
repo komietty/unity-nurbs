@@ -10,7 +10,7 @@ The spline module has **Standard**, **Loop**, and **Clamped** options. The `GetC
 
 Same as Spline, the NURBS surface module has **Standard**, **Loop**, and **Clamped** options for each direction (because NURBS surface is a Tensor of NURBS spline). This means the surface module supports **Plane, Cylinder, Torus, Sphere (Clamped top and bottom)**. By moving control points using unity built-in handle UI, you can modify a mesh in runtime. Once you finish modifying you can **bake the mesh out and save as an asset** with `CreateOrUpdate` method.
 
-<img src="/Imgs/spline1.png"/>
+<img src="/Imgs/spline_1.png"/>
 <img src="/Imgs/output.gif"/>
 
 
