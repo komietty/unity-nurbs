@@ -4,7 +4,7 @@ NURBS spline and surface module for Unity. Both spline/surface are modifiable in
 
 ### Spline
 
-The spline module has **Standard**, **Loop**, and **Clamped** options. The `GetCurve` function converts [0, 1) to a position on a curve. First & second devivatives are available with methods named `GetFirstDerivative` and `GetSecondDerivative`, which are currently avairavle in Standard or Loop mode. 
+The spline module has **Standard**, **Loop**, and **Clamped** options. The `GetCurve` function converts [0, 1) to a position on a curve. First & second derivatives are available with methods named `GetFirstDerivative` and `GetSecondDerivative`, which are currently available in Standard or Loop mode. 
 
 <div display="flex" justify-content="space">
     <img src="/Imgs/spline_1.png" width="412"/>
@@ -13,7 +13,7 @@ The spline module has **Standard**, **Loop**, and **Clamped** options. The `GetC
 
 ### Surface
 
-Same as Spline, the NURBS surface module has **Standard**, **Loop**, and **Clamped** options for each direction (because NURBS surface is a Tensor of NURBS spline). This means the surface module supports **Plane, Cylinder, Torus, Sphere (Clamped top and bottom)**. By moving control points using unity built-in handle UI, you can modify a mesh in runtime. Once you finish modifying you can **bake the mesh out and save as an asset** with `CreateOrUpdate` method.
+Same as Spline, the NURBS surface module has **Standard**, **Loop**, and **Clamped** options for each direction (because NURBS surface is a Tensor of NURBS spline). This means the surface module supports **Plane, Cylinder, Torus, Sphere (Clamped top and bottom)**. By moving control points using unity built-in handle UI, you can modify a mesh in runtime. Once you finish modifying you can **bake the mesh out and save it as an asset** with `CreateOrUpdate` method.
 
 <img src="/Imgs/output.gif" width="100%"/>
 
