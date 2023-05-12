@@ -1,7 +1,8 @@
 {
   "dependencies": {
-    "com.unity.burst": "1.6.4",
-    "com.unity.collab-proxy": "1.15.12",
+    "com.komietty.vectorfield": "https://github.com/komietty/unity-vectorfield.git?path=/Packages/VectorField",
+    "com.unity.burst": "1.6.6",
+    "com.unity.collab-proxy": "2.0.4",
     "com.unity.ext.nunit": "1.0.6",
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.test-framework": "1.1.31",
